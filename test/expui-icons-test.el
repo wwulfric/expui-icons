@@ -217,7 +217,7 @@
   (skip-unless (image-type-available-p 'svg))
   (expui-icons-test--with-clean-state
     (cl-letf (((symbol-function 'expui-icons-svg-p) #'always))
-      ;; The way Dirvish calls nerd-icons, with its default options.
+      ;; The way Dirvish calls nerd-icons with its default options.
       (let ((icon (expui-icons-icon-for-file "a.py" :face nil :v-adjust 0.0
                                              :height nil)))
         (should-not (get-text-property 0 'face icon))

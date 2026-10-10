@@ -96,17 +96,23 @@ reloads edited SVG files.
 
 ### Dirvish
 
-`expui-icons-dirvish.el` defines the Dirvish attribute `expui-icons`.  It is
-the only file that loads Dirvish:
+This package does not depend on Dirvish.  Until Dirvish supports it directly,
+a Dirvish attribute takes a few lines:
 
 ```elisp
 (with-eval-after-load 'dirvish
-  (require 'expui-icons-dirvish)
+  (dirvish-define-attribute expui-icons
+    "File icons from expui-icons."
+    :width 3
+    (let ((ov (make-overlay (1- f-beg) f-beg)))
+      (overlay-put ov 'after-string
+                   (concat (if (eq (car f-type) 'dir)
+                               (expui-icons-icon-for-dir f-name :face hl-face)
+                             (expui-icons-icon-for-file f-str :face hl-face))
+                           (propertize " " 'face hl-face)))
+      `(ov . ,ov)))
   (push 'expui-icons dirvish-attributes))
 ```
-
-`expui-icons-dirvish-face-function` picks each icon's face (and so its `mono`
-color); `expui-icons-dirvish-gap` is the space before the file name.
 
 ## Icons
 
@@ -122,9 +128,6 @@ from a pinned intellij-community commit (a shallow, sparse, blob-filtered
 ```sh
 make          # byte-compile (warnings are errors), checkdoc, ERT tests
 ```
-
-`LOAD_PATH` must include Dirvish to compile the integration; it defaults to
-sibling directories `../dirvish` and `../compat`.
 
 ## License
 

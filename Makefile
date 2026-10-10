@@ -1,6 +1,5 @@
 EMACS ?= emacs
-# Directories holding Dirvish and its dependency compat, for the integration.
-LOAD_PATH ?= -L . -L ../dirvish -L ../compat
+LOAD_PATH ?= -L .
 
 .PHONY: all compile test checkdoc clean
 
@@ -9,7 +8,7 @@ all: compile checkdoc test
 compile:
 	$(EMACS) -Q --batch $(LOAD_PATH) \
 	  --eval '(setq byte-compile-error-on-warn t)' \
-	  -f batch-byte-compile expui-icons.el expui-icons-dirvish.el
+	  -f batch-byte-compile expui-icons.el
 
 test:
 	$(EMACS) -Q --batch -L . -l test/expui-icons-test.el \
@@ -17,7 +16,7 @@ test:
 
 checkdoc:
 	$(EMACS) -Q --batch $(LOAD_PATH) \
-	  --eval '(dolist (f (list "expui-icons.el" "expui-icons-dirvish.el")) (checkdoc-file f))'
+	  --eval '(checkdoc-file "expui-icons.el")'
 
 clean:
 	rm -f *.elc test/*.elc

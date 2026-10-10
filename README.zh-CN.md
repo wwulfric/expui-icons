@@ -89,17 +89,22 @@ IntelliJ 没有提供图标的语言（Emacs Lisp、Haskell、Rust、Go、Ruby �
 
 ### Dirvish
 
-`expui-icons-dirvish.el` 定义了 Dirvish 属性 `expui-icons`，只有这个文件会加载
-Dirvish：
+本包不依赖 Dirvish。在 Dirvish 直接支持之前，几行代码就能定义一个 Dirvish 属性：
 
 ```elisp
 (with-eval-after-load 'dirvish
-  (require 'expui-icons-dirvish)
+  (dirvish-define-attribute expui-icons
+    "File icons from expui-icons."
+    :width 3
+    (let ((ov (make-overlay (1- f-beg) f-beg)))
+      (overlay-put ov 'after-string
+                   (concat (if (eq (car f-type) 'dir)
+                               (expui-icons-icon-for-dir f-name :face hl-face)
+                             (expui-icons-icon-for-file f-str :face hl-face))
+                           (propertize " " 'face hl-face)))
+      `(ov . ,ov)))
   (push 'expui-icons dirvish-attributes))
 ```
-
-`expui-icons-dirvish-face-function` 决定每个图标的 face，也就是 `mono` 风格下的颜色；
-`expui-icons-dirvish-gap` 是图标与文件名之间的间距（像素）。
 
 ## 图标
 
@@ -113,9 +118,6 @@ SVG 文件放在 `icons/` 下（约 6 MB），原样复制，未做修改。来�
 ```sh
 make          # 字节编译（警告视为错误）、checkdoc、ERT 测试
 ```
-
-编译 Dirvish 集成需要 `LOAD_PATH` 包含 Dirvish，默认是同级目录 `../dirvish` 和
-`../compat`。
 
 ## 许可证
 
