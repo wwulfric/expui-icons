@@ -1,8 +1,9 @@
-;;; expui-icons.el --- File icons from IntelliJ's New UI -*- lexical-binding: t; -*-
+;;; expui-icons.el --- Icons from IntelliJ's New UI -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2026 Lufei Wang
 
 ;; Author: Lufei Wang <wwulfric@gmail.com>
+;; Assisted-by: Claude:claude-opus-5-5
 ;; Version: 0.1.0
 ;; Package-Requires: ((emacs "29.1"))
 ;; Keywords: convenience, files
