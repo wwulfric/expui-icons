@@ -1,0 +1,105 @@
+# expui-icons
+
+[English](README.md) | 简体中文
+
+为 Emacs 提供 IntelliJ New UI 风格的图标。包含
+[intellij-community](https://github.com/JetBrains/intellij-community) 平台的全部
+`expui` 图标（818 个，涵盖文件类型、文件夹、代码元素、操作、工具窗口等），以及其开源
+插件中的文件类型图标。图标均为 SVG，带浅色和深色两种变体。可以按原设计的颜色绘制，
+也可以绘制成单色，颜色跟随所在 face 的前景色。文件名、major mode 和 buffer 都能映射到
+对应的文件类型图标。
+
+本项目是独立项目，与 JetBrains 无隶属关系，也未获其背书。
+
+## 环境要求
+
+Emacs 29.1 及以上，且编译时启用了 SVG 支持（librsvg）。本包在 Emacs 31.1 上开发和测试，
+并用 package-lint 按 29.1 检查过 API。在终端或不支持 SVG 的环境下，返回字符串的函数会
+改为返回文本替代。
+
+## 用法
+
+```elisp
+(require 'expui-icons)
+
+;; 返回字符串，可直接 `insert' 或 `concat'，用法类似 nerd-icons：
+(expui-icons-icon-for-file "main.py")
+(expui-icons-icon-for-dir "~/src/.github/")
+(expui-icons-icon-for-buffer (current-buffer) :face 'shadow)
+(expui-icons-icon-for-mode 'emacs-lisp-mode :height 20)
+(expui-icons-icon "general/chevronRight")
+(expui-icons-icon "nodes/class" :face 'font-lock-type-face)
+
+;; 图标名与图片：
+(expui-icons-name-for-file "Dockerfile")   ; => "docker"
+(expui-icons-name-for-mode 'js-json-mode)  ; => "json"
+(expui-icons-name-for-buffer)              ; 依次看文件、Dired 目录、major mode
+(expui-icons-image "python" :scale 2)      ; 图片描述符
+(expui-icons-names)                        ; 全部可用图标
+(expui-icons-names "nodes")                ; 某一类图标
+```
+
+图标名就是 `icons/` 下去掉 `.svg` 后缀的路径。文件类型图标直接用短名（`python`、
+`anyType`）。其余图标（包括文件夹 `nodes/folder`）保留 IntelliJ 原有的目录，例如
+`nodes/method`、`general/chevronDown`、`actions/addFile`、`toolwindows/project`。
+不包含 `name@20x20.svg` 这类尺寸变体。
+
+返回字符串的函数接受 `:face` 参数，在 `mono` 风格下它决定图标颜色。也可以传
+`:height`（像素）、`:scale` 等图片属性来覆盖默认值。图标在行内垂直居中
+（`:ascent center`）。文件类型和 nodes 图标都是 16×16，显示高度恰好为
+`expui-icons-height`（默认 16）像素。其他设计尺寸的图标（如 14px 的 gutter 图标、
+28px 的对话框图标）按相同比例缩放。
+
+### 选项
+
+| 选项 | 说明 |
+| --- | --- |
+| `expui-icons-style` | `color`（原设计颜色）或 `mono`（使用 face 前景色），可用 `expui-icons-toggle-style` 切换 |
+| `expui-icons-background` | `auto`、`light` 或 `dark`，决定 `color` 风格用哪种变体。`background-mode` 不总是准确，所以 `auto` 会检查默认 face 的背景色 |
+| `expui-icons-height` | 16×16 图标的像素高度；设为 nil 则与其他图片一样按 `image-scaling-factor` 缩放 |
+| `expui-icons-text-fallback` | 不支持 SVG 时使用的字符串，或以图标名为参数的函数 |
+| `expui-icons-file-name-alist`、`expui-icons-directory-name-alist` | 按文件名匹配的正则（`Makefile`、`.github` 等），区分大小写 |
+| `expui-icons-extension-alist` | 小写扩展名 |
+| `expui-icons-mode-alist` | Major mode。先找精确匹配，再找第一个父 mode（`prog-mode` → `xml`，`text-mode` → `text`） |
+| `expui-icons-mono-substitutes` | 在 `mono` 风格下替换的实心徽章图标，否则它们会变成色块 |
+
+IntelliJ 没有提供图标的语言（Emacs Lisp、Haskell、Rust、Go、Ruby 等）使用通用的
+`</>` 图标（`xml`）。
+
+图片按图标名、风格、深浅变体和图片属性缓存。通过 Customize 或 `setopt` 修改选项会
+清空缓存；`expui-icons-clear-cache` 还会重新读取修改过的 SVG 文件。
+
+### Dirvish
+
+`expui-icons-dirvish.el` 定义了 Dirvish 属性 `expui-icons`，只有这个文件会加载
+Dirvish：
+
+```elisp
+(with-eval-after-load 'dirvish
+  (require 'expui-icons-dirvish)
+  (push 'expui-icons dirvish-attributes))
+```
+
+`expui-icons-dirvish-face-function` 决定每个图标的 face，也就是 `mono` 风格下的颜色；
+`expui-icons-dirvish-gap` 是图标与文件名之间的间距（像素）。
+
+## 图标
+
+SVG 文件放在 `icons/` 下（约 6 MB），原样复制，未做修改。来源与许可证见
+[`icons/README.md`](icons/README.md)。如需更新或添加图标，编辑 `scripts/manifest.txt`
+后运行 `scripts/update-icons.sh [COMMIT]`。脚本只从固定的 intellij-community commit
+拉取清单里的路径（浅层、稀疏、过滤 blob 的 `git fetch`），不会克隆几 GB 的完整仓库。
+
+## 开发
+
+```sh
+make          # 字节编译（警告视为错误）、checkdoc、ERT 测试
+```
+
+编译 Dirvish 集成需要 `LOAD_PATH` 包含 Dirvish，默认是同级目录 `../dirvish` 和
+`../compat`。
+
+## 许可证
+
+代码采用 Apache License 2.0（见 `LICENSE`）。图标同样采用 Apache 2.0，版权归
+JetBrains s.r.o. 及贡献者所有，详见 `icons/`。各语言和工具的标志仍是其所有者的商标。

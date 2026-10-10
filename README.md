@@ -1,5 +1,7 @@
 # expui-icons
 
+English | [简体中文](README.zh-CN.md)
+
 Icons for Emacs from IntelliJ's New UI: the whole `expui` icon set of
 [intellij-community](https://github.com/JetBrains/intellij-community)'s
 platform (818 icons: file types, folders, code elements, actions, tool
