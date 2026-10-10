@@ -1,0 +1,13 @@
+# Paths vendored from JetBrains/intellij-community at the commit in COMMIT.
+# A path ending in / takes every SVG below it; a file path also takes its
+# _dark variant when upstream has one.  See update-icons.sh for icon names.
+
+# Every icon of the New UI platform.
+platform/icons/src/expui/
+
+# File-type icons from open-source plugins (Apache 2.0).
+python/python-parser/resources/icons/com/jetbrains/python/parser/expui/python.svg
+python/python-requirements/common/resources/icons/com/intellij/python/requirements/expui/requirements.svg
+plugins/kotlin/base/resources/resources/org/jetbrains/kotlin/idea/icons/expui/kotlin.svg
+plugins/kotlin/base/resources/resources/org/jetbrains/kotlin/idea/icons/expui/kotlinScript.svg
+plugins/kotlin/base/resources/resources/org/jetbrains/kotlin/idea/icons/expui/kotlinGradleScript.svg
