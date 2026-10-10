@@ -46,6 +46,11 @@
   (should (equal (expui-icons-name-for-file "no-extension") "anyType"))
   (should (equal (expui-icons-name-for-file "file.unknownext") "anyType")))
 
+(ert-deftest expui-icons-test-name-for-extension ()
+  (should (equal (expui-icons-name-for-extension "py") "python"))
+  (should (equal (expui-icons-name-for-extension "PY") "python"))
+  (should-not (expui-icons-name-for-extension "unknownext")))
+
 (ert-deftest expui-icons-test-name-for-directory ()
   (should (equal (expui-icons-name-for-file "/repo/src" t) "nodes/folder"))
   (should (equal (expui-icons-name-for-file "/repo/src/") "nodes/folder"))
@@ -179,7 +184,59 @@
                    '(:ascent 80 :scale 1.0)))
     (let ((expui-icons-height 24))
       (should (equal (expui-icons--image-props nil)
+                     '(:scale 1.5 :ascent center))))))
+
+(ert-deftest expui-icons-test-nerd-icons-props ()
+  (expui-icons-test--with-clean-state
+    ;; nil values mean "default"; :v-adjust is dropped.
+    (should (equal (expui-icons--image-props
+                    '(:face nil :v-adjust 0.01 :height nil :scale nil))
+                   (expui-icons--image-props nil)))
+    ;; A float :height is a factor of the default size.
+    (should (equal (expui-icons--image-props '(:height 0.8))
+                   '(:scale 0.8 :ascent center)))
+    (should (equal (expui-icons--image-props '(:height 0.5 :scale 2))
+                   '(:scale 1.0 :ascent center)))
+    (let ((expui-icons-height 24))
+      (should (equal (expui-icons--image-props '(:height 1.0))
                      '(:scale 1.5 :ascent center))))
+    (let ((expui-icons-height nil))
+      (should (equal (expui-icons--image-props '(:height 1.0))
+                     '(:ascent center)))
+      (should (equal (expui-icons--image-props '(:height 0.8))
+                     '(:scale 0.8 :ascent center))))
+    ;; An integer :height stays in pixels.
+    (should (equal (expui-icons--image-props '(:height 20 :v-adjust -0.1))
+                   '(:height 20 :scale 1 :ascent center)))
+    (when (image-type-available-p 'svg)
+      ;; Equivalent arguments share one cached image.
+      (should (eq (expui-icons-image "python" :height nil :v-adjust 0.0)
+                  (expui-icons-image "python"))))))
+
+(ert-deftest expui-icons-test-nerd-icons-calls ()
+  (skip-unless (image-type-available-p 'svg))
+  (expui-icons-test--with-clean-state
+    (cl-letf (((symbol-function 'expui-icons-svg-p) #'always))
+      ;; The way Dirvish calls nerd-icons, with its default options.
+      (let ((icon (expui-icons-icon-for-file "a.py" :face nil :v-adjust 0.0
+                                             :height nil)))
+        (should-not (get-text-property 0 'face icon))
+        (should (eq (get-text-property 0 'display icon)
+                    (expui-icons-image "python"))))
+      (should (eq (get-text-property
+                   0 'display (expui-icons-icon-for-dir "/repo/.github"
+                                                        :height 1.0))
+                  (expui-icons-image "nodes/folderGithub")))
+      (let ((default-directory "/repo/.github/"))
+        (should (eq (get-text-property 0 'display
+                                       (expui-icons-icon-for-dir nil))
+                    (expui-icons-image "nodes/folderGithub"))))
+      (should (eq (get-text-property 0 'display
+                                     (expui-icons-icon-for-extension "PY"))
+                  (expui-icons-image "python")))
+      (should (eq (get-text-property 0 'display
+                                     (expui-icons-icon-for-extension "zzz"))
+                  (expui-icons-image "anyType"))))
     (let ((expui-icons-height nil))
       (should (equal (expui-icons--image-props nil) '(:ascent center)))
       (should (equal (expui-icons--image-props '(:height 20))

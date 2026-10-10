@@ -28,17 +28,23 @@
 ;;
 ;; The API has two layers:
 ;;
-;; - Names: `expui-icons-name-for-file', `expui-icons-name-for-mode' and
-;;   `expui-icons-name-for-buffer' return an icon name such as "python".
-;;   `expui-icons-names' lists every available name.
+;; - Names: `expui-icons-name-for-file', `expui-icons-name-for-extension',
+;;   `expui-icons-name-for-mode' and `expui-icons-name-for-buffer' return
+;;   an icon name such as "python".  `expui-icons-names' lists every
+;;   available name.
 ;;
 ;; - Rendering: `expui-icons-image' returns an image descriptor, and
 ;;   `expui-icons-icon', `expui-icons-icon-for-file',
-;;   `expui-icons-icon-for-dir', `expui-icons-icon-for-mode' and
-;;   `expui-icons-icon-for-buffer' return a string to `insert' or `concat':
+;;   `expui-icons-icon-for-dir', `expui-icons-icon-for-extension',
+;;   `expui-icons-icon-for-mode' and `expui-icons-icon-for-buffer' return
+;;   a string to `insert' or `concat':
 ;;
 ;;     (insert (expui-icons-icon-for-file "init.el") " init.el")
 ;;     (expui-icons-icon-for-buffer (current-buffer) :face 'shadow)
+;;
+;;   The icon-for functions match nerd-icons' and accept its arguments:
+;;   `:face', a float `:height' relative to the default size, `:v-adjust'
+;;   (ignored, since icons are centered) and nil values meaning "default".
 ;;
 ;; Two styles are available through `expui-icons-style':
 ;;
@@ -296,8 +302,12 @@ not exist.  A FILE ending in a slash also counts as a directory."
             expui-icons-directory-default)
       (or (expui-icons--match expui-icons-file-name-alist base)
           (when-let* ((ext (file-name-extension base)))
-            (cdr (assoc (downcase ext) expui-icons-extension-alist)))
+            (expui-icons-name-for-extension ext))
           expui-icons-default))))
+
+(defun expui-icons-name-for-extension (extension)
+  "Return the icon name for file EXTENSION (without the dot), or nil."
+  (cdr (assoc (downcase extension) expui-icons-extension-alist)))
 
 (defun expui-icons-name-for-mode (mode)
   "Return the icon name for major MODE, or nil if it is not mapped."
@@ -392,18 +402,29 @@ Unknown names fall back to `expui-icons-default'."
     name))
 
 (defun expui-icons--image-props (props)
-  "Return image properties for PROPS, an `expui-icons-image' plist."
-  (let ((result (copy-sequence props)))
-    (cond
-     ;; An explicit size is exact pixels unless the caller also scales.
-     ((or (plist-member props :height) (plist-member props :width))
-      (unless (plist-member result :scale)
-        (setq result (plist-put result :scale 1))))
-     ;; Otherwise scale the design size so that 16px becomes the height.
-     (expui-icons-height
-      (setq result (plist-put result :scale
-                              (* (or (plist-get props :scale) 1)
-                                 (/ expui-icons-height 16.0))))))
+  "Return image properties for PROPS, an `expui-icons-image' plist.
+As in nerd-icons, properties with nil values are ignored, `:v-adjust' is
+dropped (icons are centered), and a float `:height' is a factor of the
+default icon size; an integer `:height' or `:width' is in pixels."
+  (let (result (factor 1))
+    (while props
+      (let ((key (car props))
+            (value (cadr props)))
+        (cond ((or (null value) (eq key :v-adjust)))
+              ((and (eq key :height) (floatp value)) (setq factor value))
+              (t (setq result (plist-put result key value)))))
+      (setq props (cddr props)))
+    (let ((scale (* factor (or (plist-get result :scale) 1))))
+      (cond
+       ;; An explicit size is exact pixels unless the caller also scales.
+       ((or (plist-member result :height) (plist-member result :width))
+        (setq result (plist-put result :scale scale)))
+       ;; Otherwise scale the design size so that 16px becomes the height.
+       (expui-icons-height
+        (setq result (plist-put result :scale
+                                (* scale (/ expui-icons-height 16.0)))))
+       ((/= scale 1)
+        (setq result (plist-put result :scale scale)))))
     (unless (plist-member result :ascent)
       (setq result (plist-put result :ascent 'center)))
     result))
@@ -414,8 +435,9 @@ Unknown names fall back to `expui-icons-default'."
 
 (defun expui-icons-image (name &rest props)
   "Return an image descriptor for icon NAME in `expui-icons-style'.
-PROPS are image properties, e.g. `:height' (pixels) or `:scale', which
-override the defaults.  In the `mono' style the image is drawn in the
+PROPS are image properties, e.g. `:height' (integer pixels, or a float
+factor of the default size as in nerd-icons) or `:scale', which override
+the defaults.  In the `mono' style the image is drawn in the
 foreground of the face it is displayed with.  Return nil if Emacs has no
 SVG support."
   (when (image-type-available-p 'svg)
@@ -480,8 +502,19 @@ as a directory, as does a trailing slash."
 
 (defun expui-icons-icon-for-dir (directory &rest props)
   "Return a string displaying the icon for DIRECTORY.
+DIRECTORY defaults to `default-directory'; only its name is examined.
 PROPS are as for `expui-icons-icon'."
-  (apply #'expui-icons-icon (expui-icons-name-for-file directory t) props))
+  (apply #'expui-icons-icon
+         (expui-icons-name-for-file (or directory default-directory) t)
+         props))
+
+(defun expui-icons-icon-for-extension (extension &rest props)
+  "Return a string displaying the icon for file EXTENSION.
+Unmapped extensions use `expui-icons-default'.  PROPS are as for
+`expui-icons-icon'."
+  (apply #'expui-icons-icon
+         (or (expui-icons-name-for-extension extension) expui-icons-default)
+         props))
 
 (defun expui-icons-icon-for-mode (mode &rest props)
   "Return a string displaying the icon for major MODE.

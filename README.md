@@ -28,12 +28,14 @@ without SVG support, the string functions return a text fallback instead.
 (expui-icons-icon-for-dir "~/src/.github/")
 (expui-icons-icon-for-buffer (current-buffer) :face 'shadow)
 (expui-icons-icon-for-mode 'emacs-lisp-mode :height 20)
+(expui-icons-icon-for-extension "rs")
 (expui-icons-icon "general/chevronRight")
 (expui-icons-icon "nodes/class" :face 'font-lock-type-face)
 
 ;; Icon names and images:
 (expui-icons-name-for-file "Dockerfile")   ; => "docker"
 (expui-icons-name-for-mode 'js-json-mode)  ; => "json"
+(expui-icons-name-for-extension "PY")      ; => "python"
 (expui-icons-name-for-buffer)              ; file, Dired directory or mode
 (expui-icons-image "python" :scale 2)      ; image descriptor
 (expui-icons-names)                        ; every available icon
@@ -52,6 +54,25 @@ override the defaults.  Icons are centered on the line (`:ascent center`).
 File-type and node icons are 16×16 and shown exactly `expui-icons-height`
 (16) pixels high; icons with other design sizes (14px gutter icons, 28px
 dialog icons, …) are scaled by the same factor.
+
+### nerd-icons compatibility
+
+`expui-icons-icon-for-file`, `-icon-for-dir`, `-icon-for-extension` and
+`-icon-for-mode` have the same signatures as their nerd-icons counterparts and
+accept the same arguments, so code written for nerd-icons can switch by
+renaming the functions:
+
+- `:face` sets the face (and the `mono` color);
+- a float `:height` is a factor of the default size, like nerd-icons' height
+  relative to the font (`:height 0.8`); an integer `:height` is in pixels;
+- `:v-adjust` is ignored, because the icons are always centered;
+- arguments whose value is nil mean "use the default".
+
+Differences: the icons are images, so terminals get
+`expui-icons-text-fallback` instead of a glyph; `icon-for-dir` looks only at
+the name and never touches the file system (no special icon for remote,
+symlinked or Git directories); there is no `icon-for-url`; and
+`expui-icons-icon-for-buffer` is an addition.
 
 ### Options
 

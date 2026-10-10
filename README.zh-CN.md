@@ -27,12 +27,14 @@ Emacs 29.1 及以上，且编译时启用了 SVG 支持（librsvg）。本包在
 (expui-icons-icon-for-dir "~/src/.github/")
 (expui-icons-icon-for-buffer (current-buffer) :face 'shadow)
 (expui-icons-icon-for-mode 'emacs-lisp-mode :height 20)
+(expui-icons-icon-for-extension "rs")
 (expui-icons-icon "general/chevronRight")
 (expui-icons-icon "nodes/class" :face 'font-lock-type-face)
 
 ;; 图标名与图片：
 (expui-icons-name-for-file "Dockerfile")   ; => "docker"
 (expui-icons-name-for-mode 'js-json-mode)  ; => "json"
+(expui-icons-name-for-extension "PY")      ; => "python"
 (expui-icons-name-for-buffer)              ; 依次看文件、Dired 目录、major mode
 (expui-icons-image "python" :scale 2)      ; 图片描述符
 (expui-icons-names)                        ; 全部可用图标
@@ -49,6 +51,22 @@ Emacs 29.1 及以上，且编译时启用了 SVG 支持（librsvg）。本包在
 （`:ascent center`）。文件类型和 nodes 图标都是 16×16，显示高度恰好为
 `expui-icons-height`（默认 16）像素。其他设计尺寸的图标（如 14px 的 gutter 图标、
 28px 的对话框图标）按相同比例缩放。
+
+### 与 nerd-icons 兼容
+
+`expui-icons-icon-for-file`、`-icon-for-dir`、`-icon-for-extension`、
+`-icon-for-mode` 的函数签名与 nerd-icons 中对应的函数相同，也接受相同的参数。为
+nerd-icons 写的代码只要改函数名就能切换过来：
+
+- `:face` 设置 face（在 `mono` 风格下也就是图标颜色）；
+- 浮点数 `:height` 表示默认尺寸的倍数，对应 nerd-icons 中相对字体的高度
+  （如 `:height 0.8`）；整数 `:height` 表示像素；
+- 忽略 `:v-adjust`，因为图标总是垂直居中；
+- 值为 nil 的参数表示"使用默认值"。
+
+不同之处：图标是图片，所以终端里得到的是 `expui-icons-text-fallback` 而不是字形；
+`icon-for-dir` 只看目录名，不访问文件系统（远程目录、符号链接目录、Git 仓库没有
+专门的图标）；没有 `icon-for-url`；`expui-icons-icon-for-buffer` 是额外提供的。
 
 ### 选项
 
