@@ -1,0 +1,110 @@
+# expui-icons
+
+Icons for Emacs from IntelliJ's New UI: the whole `expui` icon set of
+[intellij-community](https://github.com/JetBrains/intellij-community)'s
+platform (818 icons: file types, folders, code elements, actions, tool
+windows, …) plus file-type icons from its open-source plugins.  The icons are
+SVGs with light and dark variants, drawn either in their original colors or in
+a single color that follows the face they are shown with.  File names, major
+modes and buffers map to file-type icons.
+
+This is an independent project, not affiliated with or endorsed by JetBrains.
+
+## Requirements
+
+Emacs 29.1 or later built with SVG support (librsvg).  Developed and tested
+on Emacs 31.1; package-lint checks the API against 29.1.  In terminals, or
+without SVG support, the string functions return a text fallback instead.
+
+## Usage
+
+```elisp
+(require 'expui-icons)
+
+;; Strings to `insert' or `concat', like nerd-icons:
+(expui-icons-icon-for-file "main.py")
+(expui-icons-icon-for-dir "~/src/.github/")
+(expui-icons-icon-for-buffer (current-buffer) :face 'shadow)
+(expui-icons-icon-for-mode 'emacs-lisp-mode :height 20)
+(expui-icons-icon "general/chevronRight")
+(expui-icons-icon "nodes/class" :face 'font-lock-type-face)
+
+;; Icon names and images:
+(expui-icons-name-for-file "Dockerfile")   ; => "docker"
+(expui-icons-name-for-mode 'js-json-mode)  ; => "json"
+(expui-icons-name-for-buffer)              ; file, Dired directory or mode
+(expui-icons-image "python" :scale 2)      ; image descriptor
+(expui-icons-names)                        ; every available icon
+(expui-icons-names "nodes")                ; one category
+```
+
+Icon names are paths under `icons/` without `.svg`.  File-type icons have
+plain names (`python`, `anyType`); every other icon, including folders
+(`nodes/folder`), keeps IntelliJ's directory, such as `nodes/method`,
+`general/chevronDown`, `actions/addFile` or `toolwindows/project`.  Size
+variants (`name@20x20.svg`) are not included.
+
+The string functions accept `:face`, which in the `mono` style sets the icon's
+color, and image properties such as `:height` (pixels) or `:scale`, which
+override the defaults.  Icons are centered on the line (`:ascent center`).
+File-type and node icons are 16×16 and shown exactly `expui-icons-height`
+(16) pixels high; icons with other design sizes (14px gutter icons, 28px
+dialog icons, …) are scaled by the same factor.
+
+### Options
+
+| Option | Meaning |
+| --- | --- |
+| `expui-icons-style` | `color` (as designed) or `mono` (in the face's foreground; see `expui-icons-toggle-style`) |
+| `expui-icons-background` | `auto`, `light` or `dark`: which variant `color` uses.  `auto` checks the default face's background, since `background-mode` is not always right |
+| `expui-icons-height` | Pixel height of a 16×16 icon, or nil to scale like other images |
+| `expui-icons-text-fallback` | String, or function of the icon name, used without SVG support |
+| `expui-icons-file-name-alist`, `expui-icons-directory-name-alist` | Regexps on base names (`Makefile`, `.github`, …) |
+| `expui-icons-extension-alist` | Lowercase extensions |
+| `expui-icons-mode-alist` | Major modes; exact matches first, then the first parent mode (`prog-mode` → `xml`, `text-mode` → `text`) |
+| `expui-icons-mono-substitutes` | Solid badge icons replaced in `mono`, where they would be blocks |
+
+Languages that IntelliJ ships no icon for (Emacs Lisp, Haskell, Rust, Go,
+Ruby, …) use its generic `</>` icon (`xml`).
+
+Images are cached by name, style, variant and properties.  Changing an option
+with Customize or `setopt` clears the cache; `expui-icons-clear-cache` also
+reloads edited SVG files.
+
+### Dirvish
+
+`expui-icons-dirvish.el` defines the Dirvish attribute `expui-icons`.  It is
+the only file that loads Dirvish:
+
+```elisp
+(with-eval-after-load 'dirvish
+  (require 'expui-icons-dirvish)
+  (push 'expui-icons dirvish-attributes))
+```
+
+`expui-icons-dirvish-face-function` picks each icon's face (and so its `mono`
+color); `expui-icons-dirvish-gap` is the space before the file name.
+
+## Icons
+
+`icons/` holds the SVG files (about 6 MB), copied unmodified; see
+[`icons/README.md`](icons/README.md) for their origin and license.  To update
+them or add icons, edit `scripts/manifest.txt` and run
+`scripts/update-icons.sh [COMMIT]`.  The script fetches only the listed paths
+from a pinned intellij-community commit (a shallow, sparse, blob-filtered
+`git fetch`), so it never clones the multi-gigabyte repository.
+
+## Development
+
+```sh
+make          # byte-compile (warnings are errors), checkdoc, ERT tests
+```
+
+`LOAD_PATH` must include Dirvish to compile the integration; it defaults to
+sibling directories `../dirvish` and `../compat`.
+
+## License
+
+The code is licensed under the Apache License 2.0 (`LICENSE`).  The icons are
+also Apache 2.0, © JetBrains s.r.o. and contributors; see `icons/`.  Logos of
+languages and tools remain trademarks of their owners.
