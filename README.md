@@ -94,26 +94,6 @@ Images are cached by name, style, variant and properties.  Changing an option
 with Customize or `setopt` clears the cache; `expui-icons-clear-cache` also
 reloads edited SVG files.
 
-### Dirvish
-
-This package does not depend on Dirvish.  Until Dirvish supports it directly,
-a Dirvish attribute takes a few lines:
-
-```elisp
-(with-eval-after-load 'dirvish
-  (dirvish-define-attribute expui-icons
-    "File icons from expui-icons."
-    :width 3
-    (let ((ov (make-overlay (1- f-beg) f-beg)))
-      (overlay-put ov 'after-string
-                   (concat (if (eq (car f-type) 'dir)
-                               (expui-icons-icon-for-dir f-name :face hl-face)
-                             (expui-icons-icon-for-file f-str :face hl-face))
-                           (propertize " " 'face hl-face)))
-      `(ov . ,ov)))
-  (push 'expui-icons dirvish-attributes))
-```
-
 ## Icons
 
 `icons/` holds the SVG files (about 6 MB), copied unmodified; see

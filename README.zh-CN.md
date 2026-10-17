@@ -87,25 +87,6 @@ IntelliJ 没有提供图标的语言（Emacs Lisp、Haskell、Rust、Go、Ruby �
 图片按图标名、风格、深浅变体和图片属性缓存。通过 Customize 或 `setopt` 修改选项会
 清空缓存；`expui-icons-clear-cache` 还会重新读取修改过的 SVG 文件。
 
-### Dirvish
-
-本包不依赖 Dirvish。在 Dirvish 直接支持之前，几行代码就能定义一个 Dirvish 属性：
-
-```elisp
-(with-eval-after-load 'dirvish
-  (dirvish-define-attribute expui-icons
-    "File icons from expui-icons."
-    :width 3
-    (let ((ov (make-overlay (1- f-beg) f-beg)))
-      (overlay-put ov 'after-string
-                   (concat (if (eq (car f-type) 'dir)
-                               (expui-icons-icon-for-dir f-name :face hl-face)
-                             (expui-icons-icon-for-file f-str :face hl-face))
-                           (propertize " " 'face hl-face)))
-      `(ov . ,ov)))
-  (push 'expui-icons dirvish-attributes))
-```
-
 ## 图标
 
 SVG 文件放在 `icons/` 下（约 6 MB），原样复制，未做修改。来源与许可证见
