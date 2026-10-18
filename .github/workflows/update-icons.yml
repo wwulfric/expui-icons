@@ -1,0 +1,97 @@
+name: Update icons
+
+# Re-fetch the icons from the latest intellij-community commit every week.
+# Commit only when an icon changed, and only after `make` passes, so the
+# pinned commit in scripts/COMMIT moves with actual icon changes.  Each such
+# commit is a patch release: the Version header and a new vX.Y.Z tag.
+
+on:
+  schedule:
+    - cron: '17 3 * * 1'  # Mondays, 03:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-icons
+
+jobs:
+  update:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # tags, to number the release
+
+      - name: Fetch the latest icons
+        id: update
+        run: |
+          latest=$(git ls-remote https://github.com/JetBrains/intellij-community.git \
+                     refs/heads/master | cut -f1)
+          echo "Pinned: $(cat scripts/COMMIT)"
+          echo "Upstream: $latest"
+          if [ "$latest" = "$(cat scripts/COMMIT)" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          scripts/update-icons.sh "$latest"
+          git add -A icons scripts/COMMIT
+          if git diff --cached --quiet -- icons; then
+            echo "No icon changed."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            git diff --cached --stat -- icons | tail -1
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "commit=$latest" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install Emacs
+        if: steps.update.outputs.changed == 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends emacs-gtk
+
+      - name: Check
+        if: steps.update.outputs.changed == 'true'
+        run: make
+
+      - name: Commit
+        if: steps.update.outputs.changed == 'true'
+        env:
+          LATEST: ${{ steps.update.outputs.commit }}
+        run: |
+          {
+            echo "Update icons to intellij-community ${LATEST:0:12}"
+            echo
+            # One line per light icon; awk reads everything, so no SIGPIPE.
+            git diff --cached --no-renames --name-status -- icons \
+              | awk -F '\t' '$2 ~ /\.svg$/ && $2 !~ /_dark\.svg$/ && n++ < 100 {
+                  sub(/^icons\//, "", $2); sub(/\.svg$/, "", $2)
+                  s = $1 == "A" ? "Added:" : $1 == "D" ? "Removed:" : "Changed:"
+                  printf "%-9s %s\n", s, $2 }'
+          } > "$RUNNER_TEMP/message"
+
+          # The next release: the Version header if it is ahead of the last
+          # tag (an unreleased version), else the last tag's patch + 1.
+          header=$(sed -n 's/^;; Version: *//p' expui-icons.el)
+          last=$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname \
+                   | awk 'NR == 1 { sub(/^v/, ""); print }')
+          last=${last:-0.0.0}
+          if [ "$header" != "$last" ] &&
+             [ "$(printf '%s\n%s\n' "$header" "$last" | sort -V | tail -n 1)" = "$header" ]; then
+            version=$header
+          else
+            IFS=. read -r major minor patch <<< "$last"
+            version="$major.$minor.$((patch + 1))"
+          fi
+          perl -pi -e "s/^;; Version: .*/;; Version: $version/" expui-icons.el
+          git add expui-icons.el
+          printf '\nRelease %s.\n' "$version" >> "$RUNNER_TEMP/message"
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -F "$RUNNER_TEMP/message"
+          git tag -a "v$version" -m "expui-icons $version"
+          git push --atomic origin HEAD:main "refs/tags/v$version"

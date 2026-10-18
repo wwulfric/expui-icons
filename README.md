@@ -101,7 +101,11 @@ reloads edited SVG files.
 them or add icons, edit `scripts/manifest.txt` and run
 `scripts/update-icons.sh [COMMIT]`.  The script fetches only the listed paths
 from a pinned intellij-community commit (a shallow, sparse, blob-filtered
-`git fetch`), so it never clones the multi-gigabyte repository.
+`git fetch`), so it never clones the multi-gigabyte repository.  A weekly
+GitHub Actions workflow (`.github/workflows/update-icons.yml`) runs it against
+the latest upstream commit; when an icon changed and `make` passes, it commits
+the result as a patch release, bumping the Version header and tagging
+`vX.Y.Z`.
 
 ## Development
 

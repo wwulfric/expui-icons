@@ -93,6 +93,9 @@ SVG 文件放在 `icons/` 下（约 6 MB），原样复制，未做修改。来�
 [`icons/README.md`](icons/README.md)。如需更新或添加图标，编辑 `scripts/manifest.txt`
 后运行 `scripts/update-icons.sh [COMMIT]`。脚本只从固定的 intellij-community commit
 拉取清单里的路径（浅层、稀疏、过滤 blob 的 `git fetch`），不会克隆几 GB 的完整仓库。
+GitHub Actions 每周运行一次（`.github/workflows/update-icons.yml`），用上游最新提交
+执行该脚本；只有图标确实变化且 `make` 通过时才会提交，并作为一个补丁版本发布：
+递增包头的 Version，打上 `vX.Y.Z` tag。
 
 ## 开发
 
