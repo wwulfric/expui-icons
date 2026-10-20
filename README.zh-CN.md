@@ -4,8 +4,8 @@
 
 为 Emacs 提供 IntelliJ New UI 风格的图标。包含
 [intellij-community](https://github.com/JetBrains/intellij-community) 平台的全部
-`expui` 图标（818 个，涵盖文件类型、文件夹、代码元素、操作、工具窗口等），以及其开源
-插件中的文件类型图标。图标均为 SVG，带浅色和深色两种变体。可以按原设计的颜色绘制，
+`expui` 图标（818 个，涵盖文件类型、文件夹、代码元素、操作、工具窗口等），以及
+JetBrains 各插件（Python、Kotlin、Go、Rust、Ruby、JavaScript、C/C++ 等）的文件类型图标。图标均为 SVG，带浅色和深色两种变体。可以按原设计的颜色绘制，
 也可以绘制成单色，颜色跟随所在 face 的前景色。文件名、major mode 和 buffer 都能映射到
 对应的文件类型图标。
 
@@ -81,7 +81,7 @@ nerd-icons 写的代码只要改函数名就能切换过来：
 | `expui-icons-mode-alist` | Major mode。先找精确匹配，再找第一个父 mode（`prog-mode` → `xml`，`text-mode` → `text`） |
 | `expui-icons-mono-substitutes` | 在 `mono` 风格下替换的实心徽章图标，否则它们会变成色块 |
 
-IntelliJ 没有提供图标的语言（Emacs Lisp、Haskell、Rust、Go、Ruby 等）使用通用的
+JetBrains 没有提供图标的语言（Emacs Lisp、Haskell、Lua、Clojure 等）使用通用的
 `</>` 图标（`xml`）。
 
 图片按图标名、风格、深浅变体和图片属性缓存。通过 Customize 或 `setopt` 修改选项会
@@ -91,10 +91,14 @@ IntelliJ 没有提供图标的语言（Emacs Lisp、Haskell、Rust、Go、Ruby �
 
 SVG 文件放在 `icons/` 下（约 6 MB），原样复制，未做修改。来源与许可证见
 [`icons/README.md`](icons/README.md)。如需更新或添加图标，编辑 `scripts/manifest.txt`
-后运行 `scripts/update-icons.sh [COMMIT]`。脚本只从固定的 intellij-community commit
-拉取清单里的路径（浅层、稀疏、过滤 blob 的 `git fetch`），不会克隆几 GB 的完整仓库。
-GitHub Actions 每周运行一次（`.github/workflows/update-icons.yml`），用上游最新提交
-执行该脚本；只有图标确实变化且 `make` 通过时才会提交，并作为一个补丁版本发布：
+后运行 `scripts/update-icons.sh [--update-site] [COMMIT]`。脚本只从固定的
+intellij-community commit 拉取清单里的路径（浅层、稀疏、过滤 blob 的 `git fetch`），
+不会克隆几 GB 的完整仓库。以 `site:` 开头的条目从
+[intellij-icons.jetbrains.design](https://intellij-icons.jetbrains.design) 下载；
+这个网站没有版本号，所以由 `scripts/site.lock` 记录每个文件的 SHA-256 来固定版本：
+文件与记录不符时脚本报错，除非加上 `--update-site`，它会接受新文件并重写 lock
+（修改 `site:` 条目之后要加上它）。GitHub Actions 每周运行一次
+（`.github/workflows/update-icons.yml`），带 `--update-site`、用上游最新提交执行该脚本；只有图标确实变化且 `make` 通过时才会提交，并作为一个补丁版本发布：
 递增包头的 Version，打上 `vX.Y.Z` tag。
 
 ## 开发
@@ -106,4 +110,6 @@ make          # 字节编译（警告视为错误）、checkdoc、ERT 测试
 ## 许可证
 
 代码采用 Apache License 2.0（见 `LICENSE`）。图标同样采用 Apache 2.0，版权归
-JetBrains s.r.o. 及贡献者所有，详见 `icons/`。各语言和工具的标志仍是其所有者的商标。
+JetBrains s.r.o. 及贡献者所有。intellij-icons.jetbrains.design 上的部分图标（Go、Rust
+等）文件里没有许可证头，为什么仍然收录见 [`icons/README.md`](icons/README.md)。
+各语言和工具的标志仍是其所有者的商标。

@@ -1,6 +1,7 @@
-# Paths vendored from JetBrains/intellij-community at the commit in COMMIT.
-# A path ending in / takes every SVG below it; a file path also takes its
-# _dark variant when upstream has one.  See update-icons.sh for icon names.
+# Paths vendored from JetBrains/intellij-community at the commit in COMMIT,
+# then site: entries (at the end).  A path ending in / takes every SVG below
+# it; a file path also takes its _dark variant when upstream has one.  See
+# update-icons.sh for icon names.
 
 # Every icon of the New UI platform.
 platform/icons/src/expui/
@@ -11,3 +12,46 @@ python/python-requirements/common/resources/icons/com/intellij/python/requiremen
 plugins/kotlin/base/resources/resources/org/jetbrains/kotlin/idea/icons/expui/kotlin.svg
 plugins/kotlin/base/resources/resources/org/jetbrains/kotlin/idea/icons/expui/kotlinScript.svg
 plugins/kotlin/base/resources/resources/org/jetbrains/kotlin/idea/icons/expui/kotlinGradleScript.svg
+
+# File-type icons of other JetBrains plugins, from
+# https://intellij-icons.jetbrains.design (see icons/README.md for their
+# license).  site:SET/SECTION/NAME is the icon's path on the site; its
+# _dark variant is taken too when the site has one.  The files are
+# pinned by site.lock.
+site:GoGeneratedIcons/icons/expui/go
+site:GoGeneratedIcons/icons/expui/goMod
+site:GoGeneratedIcons/icons/expui/goSum
+site:GoGeneratedIcons/icons/expui/goWork
+site:GOTemplateIcons/icons/expui/goTemplate
+site:RustroverCommonIcons/icons/expui/rustFile
+site:RustroverCommonIcons/icons/expui/cargoLock
+site:RubyIcons/icons/expui/ruby/ruby
+site:RubyIcons/icons/expui/erb/erbFile
+site:RubyIcons/icons/expui/rbs/rbsFile
+site:RubyIcons/icons/expui/rack/rackFile
+site:DartIcons/icons/expui/dart
+site:ScalaIcons/expui/scalaScript
+site:SwiftPackageManagerIcons/icons/expui/swiftPackageManifest
+site:RIcons/icons/expui/rMarkdownFile
+site:CidrLangIcons/icons/expui/fileTypes/m
+site:CidrLangIcons/icons/expui/fileTypes/cu
+site:CidrLangIcons/icons/expui/fileTypes/cuh
+site:CidrAsmIcons/icons/expui/fileTypes/asm
+site:QmlCommonIcons/icons/expui/qml
+site:CMakeIcons/icons/expui/CMake
+site:MakefileIcons/icons/expui/makefile
+site:ClionMesonIcons/icons/expui/meson
+site:JavaScriptCoreIcons/icons/expui/fileTypes/jsx
+site:JavaScriptCoreIcons/icons/expui/fileTypes/tsx
+site:JavaScriptLanguageIcons/icons/expui/fileTypes/npm
+site:JavascriptCommonIcons/icons/expui/nodejs/yarn
+site:JavaScriptLanguageIcons/icons/expui/fileTypes/eslint
+site:JavaScriptLanguageIcons/icons/expui/fileTypes/prettier
+site:JavaScriptLanguageIcons/icons/expui/fileTypes/stylelint
+site:SassIcons/org/jetbrains/plugins/sass/expui/sass
+site:LessIcons/icons/expui/less
+site:StylusIcons/org/jetbrains/plugins/stylus/expui/stylus
+site:HamlIcons/icons/expui/haml
+site:SlimIcons/icons/expui/slim
+site:HandlebarsIcons/icons/expui/handlebars
+site:FreemarkerIcons/icons/expui/freemarker

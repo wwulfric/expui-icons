@@ -5,7 +5,8 @@ English | [简体中文](README.zh-CN.md)
 Icons for Emacs from IntelliJ's New UI: the whole `expui` icon set of
 [intellij-community](https://github.com/JetBrains/intellij-community)'s
 platform (818 icons: file types, folders, code elements, actions, tool
-windows, …) plus file-type icons from its open-source plugins.  The icons are
+windows, …) plus file-type icons from JetBrains plugins (Python, Kotlin, Go,
+Rust, Ruby, JavaScript, C/C++, …).  The icons are
 SVGs with light and dark variants, drawn either in their original colors or in
 a single color that follows the face they are shown with.  File names, major
 modes and buffers map to file-type icons.
@@ -87,8 +88,8 @@ symlinked or Git directories); there is no `icon-for-url`; and
 | `expui-icons-mode-alist` | Major modes; exact matches first, then the first parent mode (`prog-mode` → `xml`, `text-mode` → `text`) |
 | `expui-icons-mono-substitutes` | Solid badge icons replaced in `mono`, where they would be blocks |
 
-Languages that IntelliJ ships no icon for (Emacs Lisp, Haskell, Rust, Go,
-Ruby, …) use its generic `</>` icon (`xml`).
+Languages that JetBrains ships no icon for (Emacs Lisp, Haskell, Lua,
+Clojure, …) use the generic `</>` icon (`xml`).
 
 Images are cached by name, style, variant and properties.  Changing an option
 with Customize or `setopt` clears the cache; `expui-icons-clear-cache` also
@@ -99,10 +100,16 @@ reloads edited SVG files.
 `icons/` holds the SVG files (about 6 MB), copied unmodified; see
 [`icons/README.md`](icons/README.md) for their origin and license.  To update
 them or add icons, edit `scripts/manifest.txt` and run
-`scripts/update-icons.sh [COMMIT]`.  The script fetches only the listed paths
-from a pinned intellij-community commit (a shallow, sparse, blob-filtered
-`git fetch`), so it never clones the multi-gigabyte repository.  A weekly
-GitHub Actions workflow (`.github/workflows/update-icons.yml`) runs it against
+`scripts/update-icons.sh [--update-site] [COMMIT]`.  The script fetches only
+the listed paths from a pinned intellij-community commit (a shallow, sparse,
+blob-filtered `git fetch`), so it never clones the multi-gigabyte repository.
+Entries starting with `site:` are downloaded from
+[intellij-icons.jetbrains.design](https://intellij-icons.jetbrains.design),
+which has no versions, so `scripts/site.lock` pins their SHA-256 hashes: a
+file that no longer matches is an error unless `--update-site` is given,
+which accepts the new files and rewrites the lock (pass it after editing the
+`site:` entries).  A weekly GitHub Actions workflow
+(`.github/workflows/update-icons.yml`) runs it with `--update-site` against
 the latest upstream commit; when an icon changed and `make` passes, it commits
 the result as a patch release, bumping the Version header and tagging
 `vX.Y.Z`.
@@ -116,5 +123,7 @@ make          # byte-compile (warnings are errors), checkdoc, ERT tests
 ## License
 
 The code is licensed under the Apache License 2.0 (`LICENSE`).  The icons are
-also Apache 2.0, © JetBrains s.r.o. and contributors; see `icons/`.  Logos of
+also Apache 2.0, © JetBrains s.r.o. and contributors.  Some icons from
+intellij-icons.jetbrains.design (Go, Rust, …) have no license header; see
+[`icons/README.md`](icons/README.md) for why they are included.  Logos of
 languages and tools remain trademarks of their owners.

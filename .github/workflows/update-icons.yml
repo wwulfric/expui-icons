@@ -1,9 +1,11 @@
 name: Update icons
 
-# Re-fetch the icons from the latest intellij-community commit every week.
-# Commit only when an icon changed, and only after `make` passes, so the
-# pinned commit in scripts/COMMIT moves with actual icon changes.  Each such
-# commit is a patch release: the Version header and a new vX.Y.Z tag.
+# Re-fetch the icons from the latest intellij-community commit and from
+# intellij-icons.jetbrains.design every week.  Commit only when an icon
+# changed, and only after `make` passes, so the pinned commit in
+# scripts/COMMIT and the hashes in scripts/site.lock move with actual icon
+# changes.  Each such commit is a patch release: the Version header and a
+# new vX.Y.Z tag.
 
 on:
   schedule:
@@ -33,12 +35,9 @@ jobs:
                      refs/heads/master | cut -f1)
           echo "Pinned: $(cat scripts/COMMIT)"
           echo "Upstream: $latest"
-          if [ "$latest" = "$(cat scripts/COMMIT)" ]; then
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          scripts/update-icons.sh "$latest"
-          git add -A icons scripts/COMMIT
+          # Run even when the commit is unchanged: the site has no commits.
+          scripts/update-icons.sh --update-site "$latest"
+          git add -A icons scripts/COMMIT scripts/site.lock
           if git diff --cached --quiet -- icons; then
             echo "No icon changed."
             echo "changed=false" >> "$GITHUB_OUTPUT"
@@ -64,7 +63,7 @@ jobs:
           LATEST: ${{ steps.update.outputs.commit }}
         run: |
           {
-            echo "Update icons to intellij-community ${LATEST:0:12}"
+            echo "Update icons (intellij-community ${LATEST:0:12})"
             echo
             # One line per light icon; awk reads everything, so no SIGPIPE.
             git diff --cached --no-renames --name-status -- icons \
