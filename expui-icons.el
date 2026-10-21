@@ -199,7 +199,7 @@ Matching is case-sensitive."
    ("kotlin" "kt")
    ("kotlinScript" "kts")
    ("go" "go")
-   ("goTemplate" "tmpl" "gotmpl")
+   ("goTemplate" "gotmpl")
    ("rustFile" "rs")
    ("ruby" "rb" "rbw" "rake" "gemspec")
    ("erbFile" "erb")
@@ -207,7 +207,8 @@ Matching is case-sensitive."
    ("rackFile" "ru")
    ("dart" "dart")
    ("rMarkdownFile" "rmd")
-   ("m" "m" "mm")
+   ;; Not "m", which is also MATLAB/Octave; `objc-mode' maps it below.
+   ("m" "mm")
    ("cu" "cu")
    ("cuh" "cuh")
    ("asm" "asm" "s" "nasm")

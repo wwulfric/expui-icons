@@ -66,6 +66,9 @@
   (should (equal (expui-icons-name-for-extension "dart") "dart"))
   (should (equal (expui-icons-name-for-extension "jsx") "jsx"))
   (should (equal (expui-icons-name-for-extension "scss") "sass"))
+  ;; Shared with other languages and tools.
+  (should-not (expui-icons-name-for-extension "m"))
+  (should-not (expui-icons-name-for-extension "tmpl"))
   (should-not (expui-icons-name-for-extension "unknownext")))
 
 (ert-deftest expui-icons-test-name-for-directory ()
