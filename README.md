@@ -97,22 +97,16 @@ reloads edited SVG files.
 
 ## Icons
 
-`icons/` holds the SVG files (about 6 MB), copied unmodified; see
-[`icons/README.md`](icons/README.md) for their origin and license.  To update
-them or add icons, edit `scripts/manifest.txt` and run
-`scripts/update-icons.sh [--update-site] [COMMIT]`.  The script fetches only
-the listed paths from a pinned intellij-community commit (a shallow, sparse,
-blob-filtered `git fetch`), so it never clones the multi-gigabyte repository.
-Entries starting with `site:` are downloaded from
-[intellij-icons.jetbrains.design](https://intellij-icons.jetbrains.design),
-which has no versions, so `scripts/site.lock` pins their SHA-256 hashes: a
-file that no longer matches is an error unless `--update-site` is given,
-which accepts the new files and rewrites the lock (pass it after editing the
-`site:` entries).  A weekly GitHub Actions workflow
-(`.github/workflows/update-icons.yml`) runs it with `--update-site` against
-the latest upstream commit; when an icon changed and `make` passes, it commits
-the result as a patch release, bumping the Version header and tagging
-`vX.Y.Z`.
+`icons/` holds the SVG files (about 6 MB), copied unmodified from
+intellij-community and
+[intellij-icons.jetbrains.design](https://intellij-icons.jetbrains.design);
+see [`icons/README.md`](icons/README.md) for their origin and license.
+
+To add icons, edit `scripts/manifest.txt` and run
+`scripts/update-icons.sh --update-site`; the script's header explains the
+details.  A weekly GitHub Actions workflow does the same against the latest
+upstream and, when an icon changed and `make` passes, releases a patch
+version.
 
 ## Development
 

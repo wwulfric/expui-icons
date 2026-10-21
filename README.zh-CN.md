@@ -89,17 +89,13 @@ JetBrains 没有提供图标的语言（Emacs Lisp、Haskell、Lua、Clojure 等
 
 ## 图标
 
-SVG 文件放在 `icons/` 下（约 6 MB），原样复制，未做修改。来源与许可证见
-[`icons/README.md`](icons/README.md)。如需更新或添加图标，编辑 `scripts/manifest.txt`
-后运行 `scripts/update-icons.sh [--update-site] [COMMIT]`。脚本只从固定的
-intellij-community commit 拉取清单里的路径（浅层、稀疏、过滤 blob 的 `git fetch`），
-不会克隆几 GB 的完整仓库。以 `site:` 开头的条目从
-[intellij-icons.jetbrains.design](https://intellij-icons.jetbrains.design) 下载；
-这个网站没有版本号，所以由 `scripts/site.lock` 记录每个文件的 SHA-256 来固定版本：
-文件与记录不符时脚本报错，除非加上 `--update-site`，它会接受新文件并重写 lock
-（修改 `site:` 条目之后要加上它）。GitHub Actions 每周运行一次
-（`.github/workflows/update-icons.yml`），带 `--update-site`、用上游最新提交执行该脚本；只有图标确实变化且 `make` 通过时才会提交，并作为一个补丁版本发布：
-递增包头的 Version，打上 `vX.Y.Z` tag。
+SVG 文件放在 `icons/` 下（约 6 MB），原样复制自 intellij-community 和
+[intellij-icons.jetbrains.design](https://intellij-icons.jetbrains.design)，
+来源与许可证见 [`icons/README.md`](icons/README.md)。
+
+如需添加图标，编辑 `scripts/manifest.txt` 后运行
+`scripts/update-icons.sh --update-site`，细节见脚本开头的注释。GitHub Actions
+每周用上游最新版本做同样的事；图标有变化且 `make` 通过时，自动发布一个补丁版本。
 
 ## 开发
 
