@@ -97,26 +97,6 @@ Images are cached by name, style, variant and properties.  Changing an option
 with Customize or `setopt` clears the cache; `expui-icons-clear-cache` also
 reloads edited SVG files.
 
-## Icons
-
-`icons/` holds the SVG files (about 6 MB), copied unmodified from
-intellij-community and
-[intellij-icons.jetbrains.design](https://intellij-icons.jetbrains.design);
-see [`icons/README.md`](icons/README.md) for their origin and license.
-
-To add icons, edit `scripts/manifest.txt` and run
-`scripts/update-icons.sh --update-site`; the script's header explains the
-details.  A weekly GitHub Actions workflow does the same against the latest
-upstream and, when an icon changed and `make` passes, releases a patch
-version.
-
-## Development
-
-```sh
-make          # byte-compile (warnings are errors), checkdoc, ERT tests
-scripts/hero.sh  # redraw docs/hero.png (needs Google Chrome)
-```
-
 ## License
 
 The code is licensed under the Apache License 2.0 (`LICENSE`).  The icons are

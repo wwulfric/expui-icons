@@ -89,23 +89,6 @@ JetBrains 没有提供图标的语言（Emacs Lisp、Haskell、Lua、Clojure 等
 图片按图标名、风格、深浅变体和图片属性缓存。通过 Customize 或 `setopt` 修改选项会
 清空缓存；`expui-icons-clear-cache` 还会重新读取修改过的 SVG 文件。
 
-## 图标
-
-SVG 文件放在 `icons/` 下（约 6 MB），原样复制自 intellij-community 和
-[intellij-icons.jetbrains.design](https://intellij-icons.jetbrains.design)，
-来源与许可证见 [`icons/README.md`](icons/README.md)。
-
-如需添加图标，编辑 `scripts/manifest.txt` 后运行
-`scripts/update-icons.sh --update-site`，细节见脚本开头的注释。GitHub Actions
-每周用上游最新版本做同样的事；图标有变化且 `make` 通过时，自动发布一个补丁版本。
-
-## 开发
-
-```sh
-make          # 字节编译（警告视为错误）、checkdoc、ERT 测试
-scripts/hero.sh  # 重新生成 docs/hero.png（需要 Google Chrome）
-```
-
 ## 许可证
 
 代码采用 Apache License 2.0（见 `LICENSE`）。图标同样采用 Apache 2.0，版权归
