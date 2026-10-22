@@ -2,6 +2,8 @@
 
 English | [简体中文](README.zh-CN.md)
 
+![expui-icons in project sidebars (light and dark, color) and a quick-open palette (mono)](docs/hero.png)
+
 Icons for Emacs from IntelliJ's New UI: the whole `expui` icon set of
 [intellij-community](https://github.com/JetBrains/intellij-community)'s
 platform (818 icons: file types, folders, code elements, actions, tool
@@ -112,6 +114,7 @@ version.
 
 ```sh
 make          # byte-compile (warnings are errors), checkdoc, ERT tests
+scripts/hero.sh  # redraw docs/hero.png (needs Google Chrome)
 ```
 
 ## License

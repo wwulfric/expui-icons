@@ -2,6 +2,8 @@
 
 [English](README.md) | 简体中文
 
+![项目侧边栏（浅色、深色，彩色风格）与快速打开面板（单色风格）中的 expui-icons](docs/hero.png)
+
 为 Emacs 提供 IntelliJ New UI 风格的图标。包含
 [intellij-community](https://github.com/JetBrains/intellij-community) 平台的全部
 `expui` 图标（818 个，涵盖文件类型、文件夹、代码元素、操作、工具窗口等），以及
@@ -101,6 +103,7 @@ SVG 文件放在 `icons/` 下（约 6 MB），原样复制自 intellij-community
 
 ```sh
 make          # 字节编译（警告视为错误）、checkdoc、ERT 测试
+scripts/hero.sh  # 重新生成 docs/hero.png（需要 Google Chrome）
 ```
 
 ## 许可证
