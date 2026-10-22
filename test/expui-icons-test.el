@@ -296,7 +296,9 @@
           (should (eq mono (expui-icons-image "python"))))
         ;; Substitutes share the replacement's image.
         (should (eq (expui-icons-image "javaScript")
-                    (expui-icons-image "xml")))))))
+                    (expui-icons-image "xml")))
+        ;; The Go gopher becomes a solid blob in one color.
+        (should (eq (expui-icons-image "go") (expui-icons-image "xml")))))))
 
 (ert-deftest expui-icons-test-dark-variant-fallback ()
   ;; gitignore has no dark variant upstream.

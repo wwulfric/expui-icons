@@ -347,6 +347,8 @@ derives from is used, so list more specific modes first."
 (defcustom expui-icons-mono-substitutes
   '(("javaScript" . "xml") ("typeScript" . "xml") ("swiftLang" . "xml")
     ("css" . "xml") ("sass" . "xml") ("npm" . "json")
+    ("go" . "xml") ("goTemplate" . "xml") ("dart" . "xml")
+    ("goMod" . "config") ("goWork" . "config") ("goSum" . "text")
     ("docker" . "config") ("jenkins" . "config")
     ("gitignore" . "anyType"))
   "Icons replaced in the `mono' style.
