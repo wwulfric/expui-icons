@@ -123,7 +123,7 @@ STATE is `open' or `closed' for directories, nil for files.")
          (if (member (let ((expui-icons-style 'mono))
                        (expui-icons--resolve icon))
                      expui-icons-hero--source-icons)
-             "#3574F0" "#6C707E"))
+             "#245FA5" "#747B84"))
         (format "<span class=\"n\">%s</span><span class=\"path\">%s</span>"
                 (expui-icons-hero--escape name)
                 (expui-icons-hero--escape path))
@@ -138,19 +138,19 @@ body {
   font: 13.5px/1 -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   background:
-    radial-gradient(900px 600px at 12% 8%, #dfe8ff 0%, transparent 60%),
-    radial-gradient(800px 600px at 92% 95%, #e9e1ff 0%, transparent 60%),
-    linear-gradient(160deg, #f4f6fb 0%, #eceff6 100%);
+    radial-gradient(900px 560px at 14% 6%, #e3ecfa 0%, transparent 72%),
+    radial-gradient(820px 600px at 90% 98%, rgba(36, 95, 165, .10) 0%, transparent 70%),
+    linear-gradient(180deg, #f3f4f5 0%, #eceef1 100%);
   position: relative;
 }
 header { position: absolute; top: 58px; left: 0; right: 0; text-align: center; }
-h1 { margin: 0; font-size: 50px; font-weight: 700; letter-spacing: -0.025em; color: #1b2130; }
-h1 span { color: #3574F0; }
-.tag { margin-top: 16px; font-size: 19px; color: #5d6577; letter-spacing: 0.005em; }
-.tag b { color: #2b3242; font-weight: 600; }
+h1 { margin: 0; font-size: 50px; font-weight: 700; letter-spacing: -0.025em; color: #454b53; }
+h1 span { color: #245fa5; }
+.tag { margin-top: 16px; font-size: 19px; color: #747b84; letter-spacing: 0.005em; }
+.tag b { color: #333333; font-weight: 600; }
 .win {
   position: absolute; border-radius: 12px; overflow: hidden;
-  box-shadow: 0 28px 60px -24px rgba(22, 32, 64, .38), 0 0 0 1px rgba(16, 24, 40, .10);
+  box-shadow: 0 28px 60px -24px rgba(69, 75, 83, .40), 0 0 0 1px #c7cbd1;
 }
 .bar { height: 40px; display: flex; align-items: center; padding: 0 14px; gap: 8px; }
 .dot { width: 12px; height: 12px; border-radius: 50%; }
@@ -160,36 +160,36 @@ h1 span { color: #3574F0; }
 .i { width: 16px; height: 16px; flex: none; display: inline-block; }
 .root { font-weight: 600; }
 .note { margin-left: 6px; font-size: 12.5px; }
-.light { background: #f7f8fa; color: #1f2329; }
-.light .bar { background: #ebecf0; color: #3a3f4b; }
-.light .note { color: #8c909a; }
-.light .sel { background: #dfe1e5; }
+.light { background: #ffffff; color: #333333; }
+.light .bar { background: #eceef1; color: #454b53; }
+.light .note { color: #747b84; }
+.light .sel { background: #ecedef; }
 .dark { background: #2b2d30; color: #dfe1e5; }
 .dark .bar { background: #1e1f22; color: #c9ccd2; }
 .dark .note { color: #6f737a; }
 .dark .sel { background: #43454a; }
 .palette {
   position: absolute; left: 452px; top: 250px; width: 696px;
-  background: #ffffff; border-radius: 14px; overflow: hidden; color: #1f2329;
-  box-shadow: 0 40px 90px -30px rgba(22, 32, 64, .55), 0 0 0 1px rgba(16, 24, 40, .12);
+  background: #ffffff; border-radius: 14px; overflow: hidden; color: #333333;
+  box-shadow: 0 40px 90px -30px rgba(69, 75, 83, .55), 0 0 0 1px #c7cbd1;
 }
 .search { height: 56px; display: flex; align-items: center; gap: 12px; padding: 0 20px;
-  border-bottom: 1px solid #ebecf0; font-size: 17px; }
-.search .q { color: #a0a4ad; }
-.search .caret { width: 2px; height: 20px; background: #3574F0; margin-right: -10px; }
-.search .hint { margin-left: auto; font-size: 12px; color: #8c909a; }
-.kbd { display: inline-block; padding: 3px 6px; border-radius: 5px; background: #f2f3f5;
-  border: 1px solid #e1e3e8; font-size: 11.5px; color: #5d6577; margin-left: 4px; }
+  border-bottom: 1px solid #e4e7eb; font-size: 17px; }
+.search .q { color: #a0a6ad; }
+.search .caret { width: 2px; height: 20px; background: #245fa5; margin-right: -10px; }
+.search .hint { margin-left: auto; font-size: 12px; color: #747b84; }
+.kbd { display: inline-block; padding: 3px 6px; border-radius: 5px; background: #f3f4f5;
+  border: 1px solid #e4e7eb; font-size: 11.5px; color: #747b84; margin-left: 4px; }
 .section { padding: 14px 22px 6px; font-size: 11.5px; font-weight: 600; letter-spacing: .06em;
-  text-transform: uppercase; color: #8c909a; }
+  text-transform: uppercase; color: #747b84; }
 .list { padding: 0 8px 10px; }
 .prow { height: 34px; display: flex; align-items: center; gap: 12px; padding: 0 14px;
   border-radius: 8px; font-size: 14.5px; }
-.prow .path { margin-left: auto; font-size: 12.5px; color: #8c909a; }
-.prow.sel { background: #d4e2ff; }
-.prow.sel .path { color: #5d6577; }
-.foot { display: flex; gap: 22px; padding: 12px 22px; border-top: 1px solid #ebecf0;
-  background: #fafbfc; font-size: 12px; color: #8c909a; }
+.prow .path { margin-left: auto; font-size: 12.5px; color: #747b84; }
+.prow.sel { background: #e3ecfa; }
+.prow.sel .path { color: #66717e; }
+.foot { display: flex; gap: 22px; padding: 12px 22px; border-top: 1px solid #e4e7eb;
+  background: #f3f4f5; font-size: 12px; color: #747b84; }
 ")
 
 (defun expui-icons-hero--window (class left top width title rows dark)
@@ -214,7 +214,7 @@ TITLE names it; ROWS are drawn with dark variants if DARK."
      (expui-icons-hero--window "dark" 1172 206 380 "Project — multica"
                                expui-icons-hero--multica t)
      "<div class=\"palette\"><div class=\"search\">"
-     (expui-icons-hero--svg "general/search" 'mono nil "#8C909A")
+     (expui-icons-hero--svg "general/search" 'mono nil "#747B84")
      "<span class=\"caret\"></span><span class=\"q\">Search files</span>"
      "<span class=\"hint\">"
      "<span class=\"kbd\">⌘</span><span class=\"kbd\">P</span></span></div>"
