@@ -46,7 +46,7 @@ Emacs 29.1 及以上，且编译时启用了 SVG 支持（librsvg）。本包在
 图标名就是 `icons/` 下去掉 `.svg` 后缀的路径。文件类型图标直接用短名（`python`、
 `anyType`）。其余图标（包括文件夹 `nodes/folder`）保留 IntelliJ 原有的目录，例如
 `nodes/method`、`general/chevronDown`、`actions/addFile`、`toolwindows/project`。
-尺寸变体保留名称后缀：例如 `general/add@20x20` 使用上游的 20px 设计，
+从 0.2.2 起收录尺寸变体，并保留名称后缀：例如 `general/add@20x20` 使用上游的 20px 设计，
 `diff/gutterCheckBox@14x14` 使用 14px gutter 复选框。
 通过名称显式选择设计；`:height 20` 只缩放所选资源，不会切换到其他设计。
 需要固定显示尺寸时，传入整数 `:height`。

@@ -4,7 +4,7 @@
 
 ;; Author: Lufei Wang <wwulfric@gmail.com>
 ;; Assisted-by: Claude:claude-opus-5-5
-;; Version: 0.2.1
+;; Version: 0.2.2
 ;; Package-Requires: ((emacs "29.1"))
 ;; Keywords: convenience, files
 ;; URL: https://github.com/wwulfric/expui-icons

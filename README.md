@@ -49,7 +49,7 @@ Icon names are paths under `icons/` without `.svg`.  File-type icons have
 plain names (`python`, `anyType`); every other icon, including folders
 (`nodes/folder`), keeps IntelliJ's directory, such as `nodes/method`,
 `general/chevronDown`, `actions/addFile` or `toolwindows/project`.  Size
-variants retain their suffix: use `general/add@20x20` for the upstream
+variants are included since 0.2.2 and retain their suffix: use `general/add@20x20` for the upstream
 20px design, or `diff/gutterCheckBox@14x14` for a 14px gutter checkbox.
 Selection is explicit: `:height 20` resizes the named resource; it does not
 select another design. Use an integer `:height` to keep an exact display size.
