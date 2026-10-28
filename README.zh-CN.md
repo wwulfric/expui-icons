@@ -6,7 +6,7 @@
 
 为 Emacs 提供 IntelliJ New UI 风格的图标。包含
 [intellij-community](https://github.com/JetBrains/intellij-community) 平台的全部
-`expui` 图标（818 个，涵盖文件类型、文件夹、代码元素、操作、工具窗口等），以及
+`expui` 图标（含尺寸变体，涵盖文件类型、文件夹、代码元素、操作、工具窗口等），以及
 JetBrains 各插件（Python、Kotlin、Go、Rust、Ruby、JavaScript、C/C++ 等）的文件类型图标。图标均为 SVG，带浅色和深色两种变体。可以按原设计的颜色绘制，
 也可以绘制成单色，颜色跟随所在 face 的前景色。文件名、major mode 和 buffer 都能映射到
 对应的文件类型图标。
@@ -46,7 +46,10 @@ Emacs 29.1 及以上，且编译时启用了 SVG 支持（librsvg）。本包在
 图标名就是 `icons/` 下去掉 `.svg` 后缀的路径。文件类型图标直接用短名（`python`、
 `anyType`）。其余图标（包括文件夹 `nodes/folder`）保留 IntelliJ 原有的目录，例如
 `nodes/method`、`general/chevronDown`、`actions/addFile`、`toolwindows/project`。
-不包含 `name@20x20.svg` 这类尺寸变体。
+尺寸变体保留名称后缀：例如 `general/add@20x20` 使用上游的 20px 设计，
+`diff/gutterCheckBox@14x14` 使用 14px gutter 复选框。
+通过名称显式选择设计；`:height 20` 只缩放所选资源，不会切换到其他设计。
+需要固定显示尺寸时，传入整数 `:height`。
 
 返回字符串的函数接受 `:face` 参数，在 `mono` 风格下它决定图标颜色。也可以传
 `:height`（像素）、`:scale` 等图片属性来覆盖默认值。图标在行内垂直居中

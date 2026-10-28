@@ -22,7 +22,7 @@
 #   platform/icons/src/expui/DIR/NAME.svg        ->  DIR/NAME
 #   any other listed file                         ->  NAME
 #   site:SET/SECTION/NAME                         ->  NAME
-# Size variants such as NAME@20x20.svg are skipped.
+# Size variants keep their suffix, for example general/add@20x20.
 
 set -eu
 
@@ -97,7 +97,7 @@ fi
 
 mkdir -p "$out"
 {
-    (cd "$repo" && find . -name '*.svg' ! -name '*@*' | sed 's|^\./|repo/|')
+    (cd "$repo" && find . -name '*.svg' | sed 's|^\./|repo/|')
     (cd "$tmp/site" && find . -name '*.svg' | sed 's|^\./|site/|')
 } | LC_ALL=C sort |
 while read -r path; do

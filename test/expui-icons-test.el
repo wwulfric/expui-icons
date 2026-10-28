@@ -153,6 +153,25 @@
         (insert-file-contents (expui-icons--file name dark))
         (should (search-forward "viewBox=\"0 0 16 16\"" nil t))))))
 
+(ert-deftest expui-icons-test-sized-resources ()
+  ;; A missing sized resource must not silently resolve to anyType.
+  (dolist (name '("general/add@20x20" "diff/gutterCheckBox@14x14"
+                  "diff/gutterCheckBoxSelected@14x14"
+                  "diff/gutterCheckBoxIndeterminate@14x14"))
+    (should (member name (expui-icons-names)))
+    (dolist (dark '(nil t))
+      (should (equal (file-name-sans-extension
+                      (file-relative-name (expui-icons--file name dark)
+                                          expui-icons-directory))
+                     (concat name (and dark "_dark"))))))
+  (when (image-type-available-p 'svg)
+    (expui-icons-test--with-clean-state
+      (let* ((expui-icons-height 24)
+             (image (expui-icons-image "diff/gutterCheckBox@14x14" :height 14)))
+        ;; Fixed-size controls must not inherit the global icon scale.
+        (should (= (plist-get (cdr image) :height) 14))
+        (should (= (plist-get (cdr image) :scale) 1))))))
+
 ;;;; Monochrome conversion
 
 (ert-deftest expui-icons-test-light-color-p ()

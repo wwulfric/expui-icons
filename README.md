@@ -6,7 +6,7 @@ English | [简体中文](README.zh-CN.md)
 
 Icons for Emacs from IntelliJ's New UI: the whole `expui` icon set of
 [intellij-community](https://github.com/JetBrains/intellij-community)'s
-platform (818 icons: file types, folders, code elements, actions, tool
+platform (including size variants: file types, folders, code elements, actions, tool
 windows, …) plus file-type icons from JetBrains plugins (Python, Kotlin, Go,
 Rust, Ruby, JavaScript, C/C++, …).  The icons are
 SVGs with light and dark variants, drawn either in their original colors or in
@@ -49,7 +49,10 @@ Icon names are paths under `icons/` without `.svg`.  File-type icons have
 plain names (`python`, `anyType`); every other icon, including folders
 (`nodes/folder`), keeps IntelliJ's directory, such as `nodes/method`,
 `general/chevronDown`, `actions/addFile` or `toolwindows/project`.  Size
-variants (`name@20x20.svg`) are not included.
+variants retain their suffix: use `general/add@20x20` for the upstream
+20px design, or `diff/gutterCheckBox@14x14` for a 14px gutter checkbox.
+Selection is explicit: `:height 20` resizes the named resource; it does not
+select another design. Use an integer `:height` to keep an exact display size.
 
 The string functions accept `:face`, which in the `mono` style sets the icon's
 color, and image properties such as `:height` (pixels) or `:scale`, which
