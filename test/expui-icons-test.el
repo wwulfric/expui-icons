@@ -363,5 +363,16 @@
                      0 'face (expui-icons-icon "python" :face 'bold))
                     'bold))))))
 
+(ert-deftest expui-icons-test-fallback-cache-follows-default ()
+  (skip-unless (image-type-available-p 'svg))
+  (expui-icons-test--with-clean-state
+    (let* ((expui-icons-default "anyType")
+           (first (expui-icons-image "no-such-icon")))
+      (let ((expui-icons-default "python"))
+        (let ((second (expui-icons-image "no-such-icon")))
+          (should-not (eq first second))
+          (should (equal (plist-get (cdr second) :file)
+                         (expand-file-name "python.svg" expui-icons-directory))))))))
+
 (provide 'expui-icons-test)
 ;;; expui-icons-test.el ends here

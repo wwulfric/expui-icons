@@ -516,7 +516,7 @@ SVG support."
     (let* ((name (expui-icons--resolve name))
            (dark (and (eq expui-icons-style 'color) (expui-icons--dark-p)))
            (props (expui-icons--image-props props))
-           (key (list name expui-icons-style dark props)))
+           (key (list name expui-icons-style dark props expui-icons-default)))
       (or (gethash key expui-icons--cache)
           (puthash key
                    (if (eq expui-icons-style 'mono)

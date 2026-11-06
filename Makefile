@@ -6,16 +6,16 @@ LOAD_PATH ?= -L .
 all: compile checkdoc test
 
 compile:
-	$(EMACS) -Q --batch $(LOAD_PATH) \
+	$(EMACS) -Q --batch --eval '(setq load-prefer-newer t)' $(LOAD_PATH) \
 	  --eval '(setq byte-compile-error-on-warn t)' \
 	  -f batch-byte-compile expui-icons.el
 
 test:
-	$(EMACS) -Q --batch -L . -l test/expui-icons-test.el \
+	$(EMACS) -Q --batch --eval '(setq load-prefer-newer t)' -L . -l test/expui-icons-test.el \
 	  -f ert-run-tests-batch-and-exit
 
 checkdoc:
-	$(EMACS) -Q --batch $(LOAD_PATH) \
+	$(EMACS) -Q --batch --eval '(setq load-prefer-newer t)' $(LOAD_PATH) \
 	  --eval '(checkdoc-file "expui-icons.el")'
 
 clean:
