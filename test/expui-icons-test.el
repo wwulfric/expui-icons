@@ -26,6 +26,60 @@
          (expui-icons--cache (make-hash-table :test #'equal)))
      ,@body))
 
+;;;; Archive
+
+(defun expui-icons-test--member (name)
+  "Return the SVG stored for NAME in the archive, or nil."
+  (pcase-let ((`(,data . ,index) (expui-icons--archive)))
+    (when-let* ((bounds (gethash name index)))
+      (decode-coding-string (substring data (car bounds) (cdr bounds))
+                            'utf-8))))
+
+(defconst expui-icons-test--icons-directory
+  (expand-file-name "icons/" (file-name-directory expui-icons-archive))
+  "The unpacked icons in a checkout of the repository.")
+
+(ert-deftest expui-icons-test-archive-matches-icons-directory ()
+  ;; scripts/pack-icons.el must have been run after changing icons/.
+  (skip-unless (file-directory-p expui-icons-test--icons-directory))
+  (let ((files (directory-files-recursively expui-icons-test--icons-directory
+                                            "\\.svg\\'")))
+    (should (= (length files)
+               (hash-table-count (cdr (expui-icons--archive)))))
+    (dolist (file files)
+      (should (equal (expui-icons-test--member
+                      (file-name-sans-extension
+                       (file-relative-name
+                        file expui-icons-test--icons-directory)))
+                     (with-temp-buffer
+                       (insert-file-contents file)
+                       (buffer-string)))))))
+
+(ert-deftest expui-icons-test-archive-contents ()
+  ;; The archive carries the icons' license next to them, and nothing
+  ;; else besides SVGs.
+  (let ((members (with-temp-buffer
+                   (call-process "tar" nil t nil "-tzf" expui-icons-archive)
+                   (split-string (buffer-string) "\n" t))))
+    (should (member "LICENSE.txt" members))
+    (should (member "NOTICE.txt" members))
+    (should (member "README.md" members))
+    (should-not (seq-remove (lambda (member)
+                              (or (string-suffix-p ".svg" member)
+                                  (member member '("LICENSE.txt" "NOTICE.txt"
+                                                   "README.md"))))
+                            members))))
+
+(ert-deftest expui-icons-test-archive-without-zlib ()
+  ;; Without zlib, `auto-compression-mode' decompresses through gzip.
+  (skip-unless (executable-find "gzip"))
+  (let ((with-zlib (expui-icons--read-archive expui-icons-archive))
+        (without (cl-letf (((symbol-function 'zlib-available-p) #'ignore))
+                   (expui-icons--read-archive expui-icons-archive))))
+    (should (equal (car without) (car with-zlib)))
+    (should (= (hash-table-count (cdr without))
+               (hash-table-count (cdr with-zlib))))))
+
 ;;;; Names
 
 (ert-deftest expui-icons-test-name-for-file ()
@@ -149,9 +203,8 @@
   (dolist (name (append '("general/chevronRight" "general/chevronDown")
                         (expui-icons-test--mapped-icons)))
     (dolist (dark '(nil t))
-      (with-temp-buffer
-        (insert-file-contents (expui-icons--file name dark))
-        (should (search-forward "viewBox=\"0 0 16 16\"" nil t))))))
+      (should (string-search "viewBox=\"0 0 16 16\""
+                             (expui-icons--svg name dark))))))
 
 (ert-deftest expui-icons-test-sized-resources ()
   ;; A missing sized resource must not silently resolve to anyType.
@@ -160,10 +213,9 @@
                   "diff/gutterCheckBoxIndeterminate@14x14"))
     (should (member name (expui-icons-names)))
     (dolist (dark '(nil t))
-      (should (equal (file-name-sans-extension
-                      (file-relative-name (expui-icons--file name dark)
-                                          expui-icons-directory))
-                     (concat name (and dark "_dark"))))))
+      (should (equal (expui-icons--svg name dark)
+                     (expui-icons-test--member
+                      (concat name (and dark "_dark")))))))
   (when (image-type-available-p 'svg)
     (expui-icons-test--with-clean-state
       (let* ((expui-icons-height 24)
@@ -204,9 +256,7 @@
 
 (ert-deftest expui-icons-test-monochrome-vendored-icons ()
   (dolist (name (expui-icons-names))
-    (let ((svg (with-temp-buffer
-                 (insert-file-contents (expui-icons--file name))
-                 (buffer-string))))
+    (let ((svg (expui-icons--svg name)))
       (should-not (string-match-p "\\(?:fill\\|stroke\\)=\"#"
                                   (expui-icons--monochrome svg)))
       (should-not (string-match-p "currentColor\"[^ \t\n/>]"
@@ -291,15 +341,14 @@
   (expui-icons-test--with-clean-state
     (let ((light (expui-icons-image "python")))
       (should (eq light (expui-icons-image "python")))
-      (should (equal (plist-get (cdr light) :file)
-                     (expand-file-name "python.svg" expui-icons-directory)))
+      (should (equal (plist-get (cdr light) :data)
+                     (expui-icons-test--member "python")))
       ;; Background variant.
       (let* ((expui-icons-background 'dark)
              (dark (expui-icons-image "python")))
         (should-not (eq dark light))
-        (should (equal (plist-get (cdr dark) :file)
-                       (expand-file-name "python_dark.svg"
-                                         expui-icons-directory))))
+        (should (equal (plist-get (cdr dark) :data)
+                       (expui-icons-test--member "python_dark"))))
       ;; Size.
       (should-not (eq light (expui-icons-image "python" :height 32)))
       (let ((expui-icons-height 20))
@@ -321,10 +370,11 @@
 
 (ert-deftest expui-icons-test-dark-variant-fallback ()
   ;; gitignore has no dark variant upstream.
-  (should (equal (expui-icons--file "gitignore" t)
-                 (expand-file-name "gitignore.svg" expui-icons-directory)))
-  (should (equal (expui-icons--file "no-such-icon")
-                 (expand-file-name "anyType.svg" expui-icons-directory))))
+  (should-not (expui-icons-test--member "gitignore_dark"))
+  (should (equal (expui-icons--svg "gitignore" t)
+                 (expui-icons-test--member "gitignore")))
+  (should (equal (expui-icons--svg "no-such-icon")
+                 (expui-icons-test--member "anyType"))))
 
 (ert-deftest expui-icons-test-custom-set-clears-cache ()
   (let ((expui-icons--cache (make-hash-table :test #'equal))
@@ -371,8 +421,8 @@
       (let ((expui-icons-default "python"))
         (let ((second (expui-icons-image "no-such-icon")))
           (should-not (eq first second))
-          (should (equal (plist-get (cdr second) :file)
-                         (expand-file-name "python.svg" expui-icons-directory))))))))
+          (should (equal (plist-get (cdr second) :data)
+                         (expui-icons-test--member "python"))))))))
 
 (provide 'expui-icons-test)
 ;;; expui-icons-test.el ends here

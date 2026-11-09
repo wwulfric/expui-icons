@@ -28,6 +28,12 @@ jobs:
         with:
           fetch-depth: 0  # tags, to number the release
 
+      # update-icons.sh packs icons.tar.gz with Emacs.
+      - name: Install Emacs
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends emacs-gtk
+
       - name: Fetch the latest icons
         id: update
         run: |
@@ -37,7 +43,7 @@ jobs:
           echo "Upstream: $latest"
           # Run even when the commit is unchanged: the site has no commits.
           scripts/update-icons.sh --update-site "$latest"
-          git add -A icons scripts/COMMIT scripts/site.lock
+          git add -A icons icons.tar.gz scripts/COMMIT scripts/site.lock
           if git diff --cached --quiet -- icons; then
             echo "No icon changed."
             echo "changed=false" >> "$GITHUB_OUTPUT"
@@ -46,12 +52,6 @@ jobs:
             echo "changed=true" >> "$GITHUB_OUTPUT"
             echo "commit=$latest" >> "$GITHUB_OUTPUT"
           fi
-
-      - name: Install Emacs
-        if: steps.update.outputs.changed == 'true'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends emacs-gtk
 
       - name: Check
         if: steps.update.outputs.changed == 'true'

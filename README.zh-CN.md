@@ -43,7 +43,7 @@ Emacs 29.1 及以上，且编译时启用了 SVG 支持（librsvg）。本包在
 (expui-icons-names "nodes")                ; 某一类图标
 ```
 
-图标名就是 `icons/` 下去掉 `.svg` 后缀的路径。文件类型图标直接用短名（`python`、
+图标名就是归档里（即仓库 `icons/` 下）去掉 `.svg` 后缀的路径。文件类型图标直接用短名（`python`、
 `anyType`）。其余图标（包括文件夹 `nodes/folder`）保留 IntelliJ 原有的目录，例如
 `nodes/method`、`general/chevronDown`、`actions/addFile`、`toolwindows/project`。
 从 0.2.2 起收录尺寸变体，并保留名称后缀：例如 `general/add@20x20` 使用上游的 20px 设计，
@@ -89,8 +89,9 @@ nerd-icons 写的代码只要改函数名就能切换过来：
 JetBrains 没有提供图标的语言（Emacs Lisp、Haskell、Lua、Clojure 等）使用通用的
 `</>` 图标（`xml`）。
 
-图片按图标名、风格、深浅变体和图片属性缓存。通过 Customize 或 `setopt` 修改选项会
-清空缓存；`expui-icons-clear-cache` 还会重新读取修改过的 SVG 文件。
+图标打包在一个压缩归档 `icons.tar.gz`（约 330 KB）里，第一次用到图标时读进内存，
+不会解压出任何文件。图片按图标名、风格、深浅变体和图片属性缓存。通过 Customize 或
+`setopt` 修改选项会清空缓存；`expui-icons-clear-cache` 还会重新读取归档。
 
 ## 许可证
 

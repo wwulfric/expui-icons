@@ -15,7 +15,9 @@
 # rewrites site.lock.  Pass it after editing the site: entries.
 #
 # icons/ is rebuilt from scratch, so it always matches the manifest
-# exactly.  The icons are copied unmodified.
+# exactly.  The icons are copied unmodified, then packed into
+# icons.tar.gz (by pack-icons.el, so Emacs is needed), which is what the
+# package reads.
 #
 # Icon names (paths under icons/, without .svg):
 #   platform/icons/src/expui/fileTypes/NAME.svg  ->  NAME
@@ -124,3 +126,4 @@ mv "$out" "$icons"
 echo "$commit" > "$here/COMMIT"
 cp "$tmp/site.lock" "$here/site.lock"
 echo "Fetched $(find "$icons" -name '*.svg' | wc -l | tr -d ' ') SVG files at $commit."
+emacs -Q --batch -l "$here/pack-icons.el" -f expui-icons-pack

@@ -4,7 +4,7 @@
 
 ;; Author: Lufei Wang <wwulfric@gmail.com>
 ;; Assisted-by: Claude:claude-opus-5-5
-;; Version: 0.2.2
+;; Version: 0.3.0
 ;; Package-Requires: ((emacs "29.1"))
 ;; Keywords: convenience, files
 ;; URL: https://github.com/wwulfric/expui-icons
@@ -24,8 +24,10 @@
 
 ;;; Commentary:
 
-;; SVG file icons from IntelliJ's New UI, vendored unmodified under
-;; icons/ (see icons/README.md for their origin and license).
+;; SVG icons from IntelliJ's New UI, vendored unmodified in
+;; icons.tar.gz (see icons/README.md in it for their origin and license).
+;; The archive is read in memory the first time an icon is needed; no
+;; file is extracted.
 ;;
 ;; The API has two layers:
 ;;
@@ -57,7 +59,7 @@
 ;;   which would become plain blocks, are replaced as listed in
 ;;   `expui-icons-mono-substitutes'.
 ;;
-;; Icon names are paths under icons/ without ".svg".  File-type icons have
+;; Icon names are paths in the archive without ".svg".  File-type icons have
 ;; plain names ("python", "anyType"); the rest of the New UI set mirrors
 ;; IntelliJ's directories: "nodes/folder", "nodes/class",
 ;; "general/chevronRight", "actions/search", and so on.
@@ -69,6 +71,7 @@
 
 ;;; Code:
 
+(eval-when-compile (require 'cl-lib))
 (require 'seq)
 
 (defgroup expui-icons nil
@@ -76,11 +79,16 @@
   :group 'appearance
   :prefix "expui-icons-")
 
-(defconst expui-icons-directory
-  (expand-file-name "icons/"
+(defconst expui-icons-archive
+  (expand-file-name "icons.tar.gz"
                     (file-name-directory (or (macroexp-file-name)
                                              buffer-file-name)))
-  "Directory holding the vendored SVG icons.")
+  "Archive holding the vendored SVG icons.")
+
+(defvar expui-icons--archive nil
+  "The loaded archive as (DATA . INDEX), or nil before an icon is needed.
+DATA is the unpacked tar, a unibyte string.  INDEX maps each icon name
+to the start and end of its SVG in DATA, as a cons.")
 
 (defvar expui-icons--cache (make-hash-table :test #'equal)
   "Image descriptors keyed by everything that changes the image.")
@@ -402,19 +410,62 @@ its directory, and any other buffer that of its major mode."
   "Return the names of all available icons, sorted.
 With CATEGORY, a directory such as \"nodes\" or \"actions\", return only
 the icons in it; the empty string selects the file-type icons."
-  (let ((root (expand-file-name (or category "") expui-icons-directory)))
-    (sort (mapcar (lambda (file)
-                    (file-name-sans-extension
-                     (file-relative-name file expui-icons-directory)))
-                  (seq-remove (lambda (file)
-                                (string-suffix-p "_dark.svg" file))
-                              (if (equal category "")
-                                  (directory-files root t "\\.svg\\'")
-                                (directory-files-recursively
-                                 root "\\.svg\\'"))))
-          #'string<)))
+  (let ((prefix (and category (not (equal category ""))
+                     (concat category "/")))
+        names)
+    (maphash (lambda (name _)
+               (when (and (not (string-suffix-p "_dark" name))
+                          (if prefix
+                              (string-prefix-p prefix name)
+                            (or (not category)
+                                (not (string-search "/" name)))))
+                 (push name names)))
+             (cdr (expui-icons--archive)))
+    (sort names #'string<)))
 
 ;;;; SVG loading
+
+(defun expui-icons--read-archive (file)
+  "Return the tar.gz FILE as (DATA . INDEX), see `expui-icons--archive'."
+  (let ((data (with-temp-buffer
+                (set-buffer-multibyte nil)
+                (if (zlib-available-p)
+                    (progn
+                      (insert-file-contents-literally file)
+                      (unless (zlib-decompress-region (point-min) (point-max))
+                        (error "Cannot decompress %s" file)))
+                  ;; Without zlib, `auto-compression-mode' runs gzip.
+                  (let ((coding-system-for-read 'no-conversion))
+                    (insert-file-contents file)))
+                (buffer-string)))
+        (index (make-hash-table :test #'equal :size 4000))
+        (pos 0))
+    (cl-flet ((field (offset width)
+                (let ((text (substring data (+ pos offset)
+                                       (+ pos offset width))))
+                  (substring text 0 (string-search "\0" text)))))
+      ;; ustar: a 512-byte header, then the contents padded to 512 bytes;
+      ;; an empty header ends the archive.
+      (while (and (<= (+ pos 512) (length data))
+                  (/= (aref data pos) 0))
+        (let* ((prefix (field 345 155))
+               (name (decode-coding-string
+                      (concat prefix (and (not (equal prefix "")) "/")
+                              (field 0 100))
+                      'utf-8))
+               (size (string-to-number (field 124 12) 8))
+               (start (+ pos 512)))
+          (when (and (memq (aref data (+ pos 156)) '(?0 0))
+                     (string-suffix-p ".svg" name))
+            (puthash (substring name 0 -4) (cons start (+ start size)) index))
+          (setq pos (+ start (* 512 (/ (+ size 511) 512)))))))
+    (cons data index)))
+
+(defun expui-icons--archive ()
+  "Return the loaded archive, reading it on first use."
+  (or expui-icons--archive
+      (setq expui-icons--archive
+            (expui-icons--read-archive expui-icons-archive))))
 
 (defun expui-icons--light-color-p (color)
   "Return non-nil if the SVG COLOR is a light tint.
@@ -457,15 +508,15 @@ Only white and #RRGGBB/#RGB colors are recognized."
            (color-dark-p (mapcar (lambda (value) (/ value 65535.0)) values))
          (eq (frame-parameter nil 'background-mode) 'dark)))))
 
-(defun expui-icons--file (name &optional dark)
-  "Return the SVG file of icon NAME, preferring its dark variant if DARK.
+(defun expui-icons--svg (name &optional dark)
+  "Return the SVG of icon NAME, preferring its dark variant if DARK.
 Unknown names fall back to `expui-icons-default'."
-  (let ((file (lambda (base) (expand-file-name (concat base ".svg")
-                                               expui-icons-directory))))
-    (seq-find #'file-exists-p
-              (delq nil (list (and dark (funcall file (concat name "_dark")))
-                              (funcall file name)
-                              (funcall file expui-icons-default))))))
+  (pcase-let* ((`(,data . ,index) (expui-icons--archive))
+               (`(,start . ,end)
+                (seq-some (lambda (name) (gethash name index))
+                          (list (and dark (concat name "_dark")) name
+                                expui-icons-default))))
+    (decode-coding-string (substring data start end) 'utf-8)))
 
 (defun expui-icons--resolve (name)
   "Return the icon actually drawn for NAME in the current style."
@@ -519,15 +570,11 @@ SVG support."
            (key (list name expui-icons-style dark props expui-icons-default)))
       (or (gethash key expui-icons--cache)
           (puthash key
-                   (if (eq expui-icons-style 'mono)
-                       (apply #'create-image
-                              (expui-icons--monochrome
-                               (with-temp-buffer
-                                 (insert-file-contents (expui-icons--file name))
-                                 (buffer-string)))
-                              'svg t props)
-                     (apply #'create-image (expui-icons--file name dark)
-                            'svg nil props))
+                   (apply #'create-image
+                          (if (eq expui-icons-style 'mono)
+                              (expui-icons--monochrome (expui-icons--svg name))
+                            (expui-icons--svg name dark))
+                          'svg t props)
                    expui-icons--cache)))))
 
 ;;;; Strings
@@ -612,8 +659,9 @@ PROPS are as for `expui-icons-icon'."
   (message "expui-icons style: %s" expui-icons-style))
 
 (defun expui-icons-clear-cache ()
-  "Forget loaded icons, e.g. after editing the SVG files."
+  "Forget loaded icons, e.g. after replacing the archive."
   (interactive)
+  (setq expui-icons--archive nil)
   (clrhash expui-icons--cache)
   (clear-image-cache))
 

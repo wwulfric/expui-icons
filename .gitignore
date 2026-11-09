@@ -1,2 +1,6 @@
 *.elc
 *-autoloads.el
+
+# The package reads its icons from this archive; keep it even where
+# *.gz is ignored globally.
+!icons.tar.gz

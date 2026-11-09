@@ -45,7 +45,8 @@ without SVG support, the string functions return a text fallback instead.
 (expui-icons-names "nodes")                ; one category
 ```
 
-Icon names are paths under `icons/` without `.svg`.  File-type icons have
+Icon names are paths in the archive (as under `icons/` in the repository)
+without `.svg`.  File-type icons have
 plain names (`python`, `anyType`); every other icon, including folders
 (`nodes/folder`), keeps IntelliJ's directory, such as `nodes/method`,
 `general/chevronDown`, `actions/addFile` or `toolwindows/project`.  Size
@@ -96,9 +97,11 @@ symlinked or Git directories); there is no `icon-for-url`; and
 Languages that JetBrains ships no icon for (Emacs Lisp, Haskell, Lua,
 Clojure, …) use the generic `</>` icon (`xml`).
 
-Images are cached by name, style, variant and properties.  Changing an option
-with Customize or `setopt` clears the cache; `expui-icons-clear-cache` also
-reloads edited SVG files.
+The icons ship as one compressed archive, `icons.tar.gz` (about 330 KB),
+which is read into memory the first time an icon is needed; nothing is
+extracted.  Images are cached by name, style, variant and properties.
+Changing an option with Customize or `setopt` clears the cache;
+`expui-icons-clear-cache` also rereads the archive.
 
 ## License
 

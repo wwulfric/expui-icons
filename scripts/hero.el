@@ -73,10 +73,7 @@ STATE is `open' or `closed' for directories, nil for files.")
   "Return an <img> of icon NAME in STYLE, DARK variant, mono COLOR."
   (let* ((expui-icons-style style)
          (name (expui-icons--resolve name))
-         (svg (with-temp-buffer
-                (insert-file-contents
-                 (expui-icons--file name (and (eq style 'color) dark)))
-                (buffer-string))))
+         (svg (expui-icons--svg name (and (eq style 'color) dark))))
     (when (eq style 'mono)
       ;; An <img> cannot inherit `color', so bake it into the image.
       (setq svg (string-replace "currentColor" color
