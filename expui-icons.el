@@ -4,7 +4,7 @@
 
 ;; Author: Lufei Wang <wwulfric@gmail.com>
 ;; Assisted-by: Claude:claude-opus-5-5
-;; Version: 0.3.0
+;; Version: 0.3.1
 ;; Package-Requires: ((emacs "29.1"))
 ;; Keywords: convenience, files
 ;; URL: https://github.com/wwulfric/expui-icons
@@ -140,16 +140,19 @@ Either a string or a function called with the icon name."
   :type 'string)
 
 (defcustom expui-icons-file-name-alist
-  `(("\\`\\(?:GNU\\)?[Mm]akefile\\'" . "makefile")
+  `(("\\`\\(?:GNU\\|I\\)?[Mm]akefile\\'" . "makefile")
+    ("\\`\\.?[Jj]ustfile\\'" . "makefile")
     ("\\`CMakeLists\\.txt\\'" . "CMake")
     ("\\`meson\\(?:\\.build\\|_options\\.txt\\|\\.options\\)\\'" . "meson")
     ("\\`go\\.mod\\'" . "goMod")
     ("\\`go\\.sum\\'" . "goSum")
     ("\\`go\\.work\\(?:\\.sum\\)?\\'" . "goWork")
     ("\\`Cargo\\.lock\\'" . "cargoLock")
+    ("\\`Pipfile\\'" . "toml")
     (,(concat "\\`" (regexp-opt '("Gemfile" "Gemfile.lock" "Rakefile"
                                   "Guardfile" "Capfile" "Brewfile"
-                                  "Podfile" "Vagrantfile"))
+                                  "Podfile" "Vagrantfile" "Fastfile"
+                                  "Appfile" "Matchfile" "Berksfile"))
               "\\'")
      . "ruby")
     ("\\`Package\\.swift\\'" . "swiftPackageManifest")
@@ -161,20 +164,40 @@ Either a string or a function called with the icon name."
      . "prettier")
     ("\\`\\(?:\\.stylelintrc\\(?:\\..*\\)?\\|stylelint\\.config\\..*\\)\\'"
      . "stylelint")
+    ("\\`.*\\.schema\\.json\\'" . "jsonSchema")
     ("\\`\\(?:.*\\.\\)?\\(?:[Dd]ockerfile\\|Containerfile\\)\\'" . "docker")
-    ("\\`docker-compose.*\\.ya?ml\\'" . "docker")
-    ("\\`\\.\\(?:git\\|docker\\|npm\\|hg\\)ignore\\'" . "gitignore")
+    ("\\`\\(?:docker-\\)?compose\\(?:\\..*\\)?\\.ya?ml\\'" . "docker")
+    ("\\`\\.\\(?:git\\|docker\\|npm\\|hg\\|helm\\|vercel\\|gcloud\\|cf\\|slug\\|bazel\\)ignore\\'"
+     . "gitignore")
     ("\\`\\.git\\(?:attributes\\|modules\\|config\\)\\'" . "config")
     ("\\`\\.editorconfig\\'" . "editorConfig")
+    ("\\`\\.\\(?:classpath\\|project\\)\\'" . "eclipse")
     ("\\`\\.dir-locals\\(?:-2\\)?\\.el\\'" . "config")
     ("\\`\\.env\\(?:\\..*\\)?\\'" . "config")
+    ("\\`\\.\\(?:bashrc\\|bash_profile\\|bash_logout\\|bash_aliases\\|zshrc\\|zshenv\\|zprofile\\|zlogin\\|zlogout\\|profile\\|kshrc\\|cshrc\\|envrc\\)\\'"
+     . "shell")
+    ("\\`PKGBUILD\\'" . "shell")
+    (,(concat "\\`" (regexp-opt '(".nvmrc" ".node-version" ".python-version"
+                                  ".ruby-version" ".go-version" ".java-version"
+                                  ".tool-versions" ".terraform-version"
+                                  ".bazelrc" ".clang-format" ".clang-tidy"
+                                  ".clangd" ".gdbinit" ".lldbinit" ".inputrc"
+                                  ".screenrc" ".wgetrc" ".curlrc" ".netrc"
+                                  ".mailmap" "Procfile" "Caddyfile"))
+              "\\'")
+     . "config")
+    ("\\`bun\\.lockb\\'" . "binaryData")
     ("\\`Jenkinsfile\\'" . "jenkins")
     ("\\`\\(?:BUILD\\|WORKSPACE\\|MODULE\\)\\(?:\\.bazel\\)?\\'" . "bazel")
     ("\\`\\(?:settings\\|build\\)\\.gradle\\.kts\\'" . "kotlinGradleScript")
     ("\\`requirements.*\\.txt\\'" . "requirements")
     ("\\`MANIFEST\\.MF\\'" . "manifest")
-    (,(concat "\\`" (regexp-opt '("LICENSE" "LICENCE" "COPYING" "NOTICE"
-                                  "AUTHORS" "CHANGELOG"))
+    ("\\`[Cc]hange[Ll]og\\(?:[-.][0-9]+\\)?\\'" . "text")
+    (,(concat "\\`" (regexp-opt '("README" "LICENSE" "LICENCE" "COPYING"
+                                  "NOTICE" "AUTHORS" "INSTALL" "CONTRIBUTING"
+                                  "CONTRIBUTORS" "MAINTAINERS" "CODEOWNERS"
+                                  "PATENTS" "CHANGELOG" "HISTORY" "NEWS"
+                                  "THANKS" "TODO" "BUGS"))
               "\\(?:\\.txt\\)?\\'")
      . "text"))
   "Regexps matched against a file's base name, before its extension.
@@ -183,8 +206,14 @@ Matching is case-sensitive."
 
 (defcustom expui-icons-directory-name-alist
   '(("\\`\\.github\\'" . "nodes/folderGithub")
-    ("\\`node_modules\\'" . "nodes/libraryFolder")
-    ("\\`logs?\\'" . "nodes/logFolder"))
+    ("\\`src\\'" . "nodes/sourceRoot")
+    ("\\`\\(?:tests?\\|spec\\|__tests__\\)\\'" . "nodes/testRoot")
+    ("\\`\\(?:resources\\|assets\\|static\\)\\'" . "nodes/resourcesRoot")
+    ("\\`\\(?:public\\|www\\)\\'" . "nodes/webFolder")
+    ("\\`\\(?:node_modules\\|vendor\\|\\.?venv\\)\\'" . "nodes/libraryFolder")
+    ("\\`logs?\\'" . "nodes/logFolder")
+    ("\\`\\(?:dist\\|build\\|target\\|out\\|__pycache__\\|\\.git\\|\\.cache\\)\\'"
+     . "nodes/excludeRoot"))
   "Regexps matched against a directory's base name.
 Matching is case-sensitive."
   :type '(alist :key-type regexp :value-type string))
@@ -199,10 +228,11 @@ Matching is case-sensitive."
 (defcustom expui-icons-extension-alist
   (expui-icons--alist
    ;; IntelliJ has no icons for these languages; use its generic `</>'.
-   ("xml" "xml" "el" "eld" "hs" "lhs" "lua" "scm" "ss" "rkt"
-    "clj" "cljs" "cljc" "edn" "ml" "mli" "ex" "exs" "erl" "hrl" "nix" "zig"
-    "jl" "r" "nim" "elm" "fs" "fsx" "purs" "agda" "idr" "v" "sv"
-    "wat" "proto" "plist" "xsl" "xslt" "svelte" "astro")
+   ("xml" "xml" "el" "eld" "hs" "lhs" "lua" "scm" "ss" "rkt" "asd"
+    "clj" "cljs" "cljc" "edn" "ml" "mli" "ex" "exs" "elixir" "erl" "hrl"
+    "nix" "zig" "jl" "r" "nim" "elm" "fs" "fsx" "purs" "agda" "idr" "v" "sv"
+    "wat" "proto" "plist" "xsl" "xslt" "svelte" "astro" "slnx" "dbk" "dtd"
+    "for" "f90" "f95" "pas" "awk" "g" "g4" "gleam" "odin" "mojo")
    ("python" "py" "pyi" "pyw" "pyx")
    ("kotlin" "kt")
    ("kotlinScript" "kts")
@@ -222,24 +252,26 @@ Matching is case-sensitive."
    ("asm" "asm" "s" "nasm")
    ("qml" "qml")
    ("CMake" "cmake")
-   ("makefile" "mk" "mak")
+   ("makefile" "mk" "mak" "make" "makepp" "am")
    ("javaScript" "js" "mjs" "cjs")
    ("jsx" "jsx")
    ("typeScript" "ts" "mts" "cts")
    ("tsx" "tsx")
+   ("actionScript" "as")
    ("shell" "sh" "bash" "zsh" "fish" "ksh" "csh" "command")
    ("microsoftWindows" "bat" "cmd" "ps1" "psm1" "exe" "dll" "msi")
    ("markdown" "md" "markdown" "mdx")
-   ("text" "txt" "org" "tex" "log" "texi" "info")
+   ("text" "txt" "org" "tex" "ltx" "dtx" "sty" "bbl" "bib" "bst"
+    "log" "texi" "texinfo" "info" "rdoc" "adoc" "asciidoc")
    ("rst" "rst")
    ("yaml" "yaml" "yml")
    ("config" "ini" "conf" "cfg" "cabal" "env" "service" "desktop" "lock")
    ("csv" "csv" "tsv")
    ("image" "png" "jpg" "jpeg" "gif" "svg" "webp" "ico" "bmp" "tif" "tiff"
-    "heic" "avif" "icns" "xpm" "pbm")
+    "heic" "avif" "jxl" "icns" "xpm" "pbm" "tga" "xcf" "pcx" "dng" "crw")
    ("font" "ttf" "otf" "woff" "woff2" "eot")
-   ("archive" "zip" "gz" "tgz" "tar" "xz" "bz2" "zst" "7z" "rar" "jar" "war"
-    "ear" "whl" "deb" "rpm" "dmg")
+   ("archive" "zip" "gz" "tgz" "tar" "xz" "txz" "bz2" "tbz2" "zst" "tzst"
+    "lzma" "7z" "rar" "jar" "war" "ear" "whl" "deb" "rpm" "dmg" "apk" "ipa")
    ("binaryData" "bin" "dat" "o" "a" "so" "dylib" "elc" "eln" "pyc" "wasm")
    ("html" "html" "htm")
    ("xhtml" "xhtml")
@@ -257,6 +289,8 @@ Matching is case-sensitive."
    ("Csharp" "cs" "csx")
    ("java" "java")
    ("javaClass" "class")
+   ("aspectJ" "aj")
+   ("ideaModule" "iml")
    ("groovy" "groovy" "gvy")
    ("gradle" "gradle")
    ("language/scala" "scala" "sbt")
@@ -265,7 +299,8 @@ Matching is case-sensitive."
    ("perl" "pl" "pm" "t" "pod")
    ("swiftLang" "swift")
    ("sql" "sql" "ddl")
-   ("json" "json" "jsonc" "json5" "jsonl" "ndjson" "geojson")
+   ("json" "json" "jsonc" "json5" "jsonl" "ndjson" "geojson"
+    "har" "webmanifest" "arb")
    ("toml" "toml")
    ("properties" "properties")
    ("patch" "patch" "diff")
@@ -324,6 +359,7 @@ Matching is case-sensitive."
    ("yaml" yaml-mode yaml-ts-mode)
    ("toml" conf-toml-mode toml-ts-mode)
    ("properties" conf-javaprop-mode)
+   ("editorConfig" editorconfig-conf-mode)
    ("config" conf-mode)
    ("sql" sql-mode)
    ("c" c-ts-mode c-mode)

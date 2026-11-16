@@ -90,24 +90,41 @@
                  "kotlinGradleScript"))
   (should (equal (expui-icons-name-for-file "script.kts") "kotlinScript"))
   (should (equal (expui-icons-name-for-file "Makefile") "makefile"))
+  (should (equal (expui-icons-name-for-file "Justfile") "makefile"))
+  (should (equal (expui-icons-name-for-file ".justfile") "makefile"))
   (should (equal (expui-icons-name-for-file "CMakeLists.txt") "CMake"))
   (should (equal (expui-icons-name-for-file "go.mod") "goMod"))
   (should (equal (expui-icons-name-for-file "go.work.sum") "goWork"))
   (should (equal (expui-icons-name-for-file "Cargo.lock") "cargoLock"))
   (should (equal (expui-icons-name-for-file "Cargo.toml") "toml"))
+  (should (equal (expui-icons-name-for-file "Pipfile") "toml"))
   (should (equal (expui-icons-name-for-file "Gemfile") "ruby"))
   (should (equal (expui-icons-name-for-file "package.json") "npm"))
   (should (equal (expui-icons-name-for-file "tsconfig.json") "json"))
+  (should (equal (expui-icons-name-for-file "user.schema.json") "jsonSchema"))
   (should (equal (expui-icons-name-for-file ".eslintrc.json") "eslint"))
   (should (equal (expui-icons-name-for-file "prettier.config.js") "prettier"))
   (should (equal (expui-icons-name-for-file "Dockerfile") "docker"))
   (should (equal (expui-icons-name-for-file "app.Dockerfile") "docker"))
+  (should (equal (expui-icons-name-for-file "compose.yaml") "docker"))
   (should (equal (expui-icons-name-for-file ".gitignore") "gitignore"))
   (should (equal (expui-icons-name-for-file ".editorconfig") "editorConfig"))
+  (should (equal (expui-icons-name-for-file ".classpath") "eclipse"))
+  (should (equal (expui-icons-name-for-file ".bashrc") "shell"))
+  (should (equal (expui-icons-name-for-file ".nvmrc") "config"))
+  (should (equal (expui-icons-name-for-file "Caddyfile") "config"))
   (should (equal (expui-icons-name-for-file "LICENSE") "text"))
+  (should (equal (expui-icons-name-for-file "README") "text"))
+  (should (equal (expui-icons-name-for-file "CONTRIBUTING") "text"))
+  (should (equal (expui-icons-name-for-file "CODEOWNERS") "text"))
+  (should (equal (expui-icons-name-for-file "ChangeLog") "text"))
+  (should (equal (expui-icons-name-for-file "ChangeLog.1") "text"))
   (should (equal (expui-icons-name-for-file "license") "anyType"))
   (should (equal (expui-icons-name-for-file "requirements-dev.txt")
                  "requirements"))
+  (should (equal (expui-icons-name-for-file "app.iml") "ideaModule"))
+  (should (equal (expui-icons-name-for-file "Main.as") "actionScript"))
+  (should (equal (expui-icons-name-for-file "Aspect.aj") "aspectJ"))
   (should (equal (expui-icons-name-for-file "no-extension") "anyType"))
   (should (equal (expui-icons-name-for-file "file.unknownext") "anyType")))
 
@@ -126,13 +143,22 @@
   (should-not (expui-icons-name-for-extension "unknownext")))
 
 (ert-deftest expui-icons-test-name-for-directory ()
-  (should (equal (expui-icons-name-for-file "/repo/src" t) "nodes/folder"))
-  (should (equal (expui-icons-name-for-file "/repo/src/") "nodes/folder"))
+  (should (equal (expui-icons-name-for-file "/repo/app" t) "nodes/folder"))
+  (should (equal (expui-icons-name-for-file "/repo/app/") "nodes/folder"))
+  (should (equal (expui-icons-name-for-file "/repo/src" t) "nodes/sourceRoot"))
+  (should (equal (expui-icons-name-for-file "/repo/tests/" ) "nodes/testRoot"))
+  (should (equal (expui-icons-name-for-file "/repo/assets" t)
+                 "nodes/resourcesRoot"))
+  (should (equal (expui-icons-name-for-file "/repo/public" t) "nodes/webFolder"))
+  (should (equal (expui-icons-name-for-file "/repo/dist" t)
+                 "nodes/excludeRoot"))
   (should (equal (expui-icons-name-for-file "/repo/.github" t)
                  "nodes/folderGithub"))
   (should (equal (expui-icons-name-for-file "/repo/.github/")
                  "nodes/folderGithub"))
   (should (equal (expui-icons-name-for-file "node_modules" t)
+                 "nodes/libraryFolder"))
+  (should (equal (expui-icons-name-for-file ".venv" t)
                  "nodes/libraryFolder"))
   ;; File-name rules do not apply to directories.
   (should (equal (expui-icons-name-for-file "Makefile" t) "nodes/folder")))
@@ -205,6 +231,32 @@
     (dolist (dark '(nil t))
       (should (string-search "viewBox=\"0 0 16 16\""
                              (expui-icons--svg name dark))))))
+
+(ert-deftest expui-icons-test-no-duplicate-mapping-keys ()
+  (dolist (alist (list expui-icons-extension-alist
+                       expui-icons-mode-alist))
+    (let ((seen (make-hash-table :test #'equal)))
+      (dolist (entry alist)
+        (should-not (gethash (car entry) seen))
+        (puthash (car entry) t seen)))))
+
+(ert-deftest expui-icons-test-common-project-coverage ()
+  ;; Common files across ecosystems should resolve to a specific icon,
+  ;; never falling back to `expui-icons-default'.
+  (dolist (file '("README" "README.md" "LICENSE" "CONTRIBUTING" "CODEOWNERS"
+                  "ChangeLog" "Makefile" "Justfile" "CMakeLists.txt"
+                  "Dockerfile" "Containerfile" "docker-compose.yml"
+                  "compose.yaml" ".dockerignore" ".gitignore" ".gitattributes"
+                  ".editorconfig" ".env" ".env.local" ".envrc" ".bashrc"
+                  ".zshrc" ".profile" ".nvmrc" ".tool-versions" "Procfile"
+                  "Caddyfile" "Jenkinsfile" "BUILD.bazel" "package.json"
+                  "package-lock.json" "yarn.lock" "Cargo.toml" "Cargo.lock"
+                  "go.mod" "go.sum" "go.work" "Pipfile" "requirements.txt"
+                  "Gemfile" "Rakefile" "Package.swift" "build.gradle.kts"
+                  "main.c" "main.cpp" "main.rs" "main.go" "main.py" "app.ts"
+                  "app.tsx" "app.js" "app.jsx" "init.el" "flake.nix" "main.tf"
+                  "schema.graphql" "user.schema.json" "app.iml"))
+    (should-not (equal (expui-icons-name-for-file file) expui-icons-default))))
 
 (ert-deftest expui-icons-test-sized-resources ()
   ;; A missing sized resource must not silently resolve to anyType.
