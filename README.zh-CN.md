@@ -19,6 +19,43 @@ Emacs 29.1 及以上，且编译时启用了 SVG 支持（librsvg）。本包在
 并用 package-lint 按 29.1 检查过 API。在终端或不支持 SVG 的环境下，返回字符串的函数会
 改为返回文本替代。
 
+## 安装
+
+`expui-icons` 已上架 [MELPA](https://melpa.org/#/expui-icons)。如果已经启用 MELPA，
+运行 `M-x package-install RET expui-icons RET` 即可。如果列表里找不到这个包，
+先运行一次 `M-x package-refresh-contents`，再重试安装。
+
+如果使用 `package.el` 且需要启用 MELPA，把下面两行加入现有的包管理配置，
+求值后刷新软件包列表：
+
+```elisp
+(require 'package)
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+```
+
+如果用 `use-package` 声明包，由 `package.el` 从 MELPA 安装，可以直接写：
+
+```elisp
+(use-package expui-icons
+  :ensure t)
+```
+
+如果配置通过 Git submodule 管理依赖，在 Emacs 配置仓库根目录运行：
+
+```sh
+git submodule add https://github.com/wwulfric/expui-icons.git lisp/expui-icons
+```
+
+然后按现有约定加载，例如：
+
+```elisp
+(add-to-list 'load-path (expand-file-name "lisp/expui-icons" user-emacs-directory))
+(require 'expui-icons)
+```
+
+也可以让 agent 按本机配置给出建议：「请阅读 [agent 安装指南](docs/agent-install.md)，
+检查我的 Emacs 配置，推荐适合的安装方式。」
+
 ## 用法
 
 ```elisp

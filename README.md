@@ -21,6 +21,43 @@ Emacs 29.1 or later built with SVG support (librsvg).  Developed and tested
 on Emacs 31.1; package-lint checks the API against 29.1.  In terminals, or
 without SVG support, the string functions return a text fallback instead.
 
+## Installation
+
+Install `expui-icons` from [MELPA](https://melpa.org/#/expui-icons).
+If you already use MELPA, run `M-x package-install RET expui-icons RET`.
+If the package is missing from the list, run `M-x package-refresh-contents` once and retry.
+
+If you use `package.el` and need to enable MELPA, add this to your package
+setup, evaluate it, and refresh the package list:
+
+```elisp
+(require 'package)
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+```
+
+For a `use-package` configuration backed by `package.el` and MELPA, the
+following declaration installs the package:
+
+```elisp
+(use-package expui-icons
+  :ensure t)
+```
+
+If you track dependencies as Git submodules, add the repository from the
+root of your Emacs configuration and use your usual load path:
+
+```sh
+git submodule add https://github.com/wwulfric/expui-icons.git lisp/expui-icons
+```
+
+```elisp
+(add-to-list 'load-path (expand-file-name "lisp/expui-icons" user-emacs-directory))
+(require 'expui-icons)
+```
+
+For a recommendation tailored to your configuration, ask your agent to follow
+the [agent installation guide](docs/agent-install.md).
+
 ## Usage
 
 ```elisp
